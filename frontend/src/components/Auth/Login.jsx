@@ -8,10 +8,16 @@ const Login = () => {
     password: ''
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const { email, password } = formData;
 
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const onSubmit = async (e) => {
@@ -30,9 +36,9 @@ const Login = () => {
       console.log('- Error message:', error.message);
       console.log('- Response status:', error.response?.status);
       console.log('- Response data:', error.response?.data);
-      console.log('- Request URL:', error.config?.url);
       
-      alert('Login failed. Check console for details.');
+      const errorMessage = error.response?.data?.message || 'Login failed';
+      alert(`Login failed: ${errorMessage}`);
     }
   };
 
@@ -51,16 +57,28 @@ const Login = () => {
               required
             />
           </div>
+          
           <div className="form-group">
             <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={password}
-              onChange={onChange}
-              required
-            />
+            <div className="password-input-container">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={password}
+                onChange={onChange}
+                required
+                className="password-input"
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={togglePasswordVisibility}
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
           </div>
+          
           <button type="submit" className="btn btn-primary">Login</button>
         </form>
         <p>

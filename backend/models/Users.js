@@ -2,10 +2,22 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-  name: {
+  firstName: {
     type: String,
-    required: [true, 'Please add a name'],
+    required: [true, 'Please add a first name'],
     trim: true
+  },
+  lastName: {
+    type: String,
+    required: [true, 'Please add a last name'],
+    trim: true
+  },
+  username: {
+    type: String,
+    required: [true, 'Please add a username'],
+    unique: true,
+    trim: true,
+    minlength: [3, 'Username must be at least 3 characters long']
   },
   email: {
     type: String,
@@ -19,13 +31,26 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: [true, 'Please add a phone number']
+    required: [true, 'Please add a phone number'],
+    validate: {
+      validator: function(v) {
+        return /^\d{10}$/.test(v);
+      },
+      message: 'Phone number must be 10 digits'
+    }
   },
   password: {
-    type: String,
-    required: [true, 'Please add a password'],
-    minlength: 6,
-    select: false
+  type: String,
+  required: [true, 'Please add a password'],
+  minlength: 8,
+  validate: {
+    validator: function(v) {
+      // More permissive regex - allows any special character
+      return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9])/.test(v);
+    },
+    message: 'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character'
+  },
+  select: false
   },
   role: {
     type: String,

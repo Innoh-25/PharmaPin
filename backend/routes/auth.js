@@ -18,20 +18,31 @@ router.post('/register', async (req, res) => {
   try {
     console.log('Registration attempt:', req.body);
     
-    const { name, email, phone, password, role } = req.body;
+    const { firstName, lastName, username, email, phone, password, role } = req.body;
 
-    // Check if user exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
+    // Check if user exists by email
+    const userExistsByEmail = await User.findOne({ email });
+    if (userExistsByEmail) {
       return res.status(400).json({
         success: false,
-        message: 'User already exists'
+        message: 'User with this email already exists'
       });
     }
 
-    // Create user
+    // Check if username is taken
+    const userExistsByUsername = await User.findOne({ username });
+    if (userExistsByUsername) {
+      return res.status(400).json({
+        success: false,
+        message: 'Username is already taken'
+      });
+    }
+
+    // Create user with new fields
     const user = await User.create({
-      name,
+      firstName,
+      lastName,
+      username,
       email,
       phone,
       password,
@@ -44,7 +55,9 @@ router.post('/register', async (req, res) => {
         success: true,
         data: {
           _id: user._id,
-          name: user.name,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          username: user.username,
           email: user.email,
           phone: user.phone,
           role: user.role,
@@ -54,6 +67,26 @@ router.post('/register', async (req, res) => {
     }
   } catch (error) {
     console.error('Registration error:', error);
+    
+    // Handle mongoose validation errors
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: messages
+      });
+    }
+    
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyValue)[0];
+      return res.status(400).json({
+        success: false,
+        message: `${field} is already registered`
+      });
+    }
+
     res.status(400).json({
       success: false,
       message: 'Invalid user data',
@@ -133,6 +166,36 @@ router.get('/me', async (req, res) => {
     res.status(401).json({
       success: false,
       message: 'Not authorized'
+    });
+  }
+});
+
+// Add this route to your auth.js file
+// @desc    Check if email is available
+// @route   GET /api/auth/check-email
+// @access  Public
+router.get('/check-email', async (req, res) => {
+  try {
+    const { email } = req.query;
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    
+    res.json({
+      success: true,
+      available: !user
+    });
+  } catch (error) {
+    console.error('Email check error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
     });
   }
 });
