@@ -17,10 +17,8 @@ const pharmacySchema = new mongoose.Schema({
     unique: true
   },
   address: {
-    street: String,
+    address: String,
     city: String,
-    state: String,
-    zipCode: String,
     coordinates: {
       lat: Number,
       lng: Number
@@ -55,7 +53,26 @@ const pharmacySchema = new mongoose.Schema({
       type: Boolean,
       default: false
     }
-  }
+  },
+  status: {
+    type: String,
+    enum: ['draft', 'pending_approval', 'approved', 'rejected'],
+    default: 'draft'
+  },
+  rejectionReason: String,
+  approvedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  approvedAt: Date,
+  certificates: [{
+    name: String,
+    fileUrl: String,
+    uploadedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
 }, {
   timestamps: true
 });

@@ -1,33 +1,83 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
+const dotenv = require('dotenv');
+
+// Import routes
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const pharmacyRoutes = require('./routes/pharmacies');
+const drugRoutes = require('./routes/drugs');
+const inventoryRoutes = require('./routes/inventory');
+const orderRoutes = require('./routes/orders');
+const pharmacyOnboardingRoutes = require('./routes/pharmacyOnboarding');
+const adminAuthRoutes = require('./routes/adminAuth');
+const adminRoutes = require('./routes/admin');
+
+dotenv.config();
 
 const app = express();
 
-// FIXED CORS - Allow both ports 3000 and 5173
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173'],
-  credentials: true
-}));
-
 // Middleware
-app.use(express.json());
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use('/api/auth', require('./routes/auth'));
+app.use('/api/auth', authRoutes);
+app.use('/api/admin/auth', adminAuthRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/pharmacies', pharmacyRoutes);
+app.use('/api/pharmacy-onboarding', pharmacyOnboardingRoutes);
+app.use('/api/drugs', drugRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/orders', orderRoutes);
 
-// Basic route
+// Health check route
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    message: 'PharmaPin API is running!',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Root route
 app.get('/', (req, res) => {
-  res.json({ message: 'PharmaPin Backend API is running!' });
+  res.json({ 
+    message: 'PharmaPin API Server',
+    version: '1.0.0',
+    endpoints: {
+      auth: '/api/auth',
+      users: '/api/users', 
+      pharmacies: '/api/pharmacies',
+      drugs: '/api/drugs',
+      inventory: '/api/inventory',
+      orders: '/api/orders'
+    }
+  });
 });
 
-// Test route
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'Test route working!' });
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    message: 'Something went wrong!',
+    error: process.env.NODE_ENV === 'production' ? {} : err.message 
+  });
 });
 
-// MongoDB connection
+// 404 handler - FIXED VERSION
+app.use((req, res) => {
+  res.status(404).json({ 
+    message: 'API route not found',
+    path: req.path,
+    method: req.method
+  });
+});
+
+// Database connection
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/pharmapin');
@@ -38,11 +88,14 @@ const connectDB = async () => {
   }
 };
 
-// Start server
 const PORT = process.env.PORT || 5000;
 
 connectDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Health check: http://localhost:${PORT}/api/health`);
   });
 });
+
+module.exports = app;
