@@ -24,6 +24,7 @@ const PharmacyOnboarding = () => {
     certificates: []
   });
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
 
   const servicesList = [
@@ -89,14 +90,53 @@ const PharmacyOnboarding = () => {
     }));
   };
 
-  const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
+  const handleFileUpload = async (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    
+    try {
+      const token = localStorage.getItem('token');
+      const uploadData = new FormData();
+      
+      // Add all files to FormData
+      Array.from(files).forEach(file => {
+        uploadData.append('certificates', file);
+      });
+
+      const response = await axios.post(
+        'http://localhost:5000/api/pharmacy-onboarding/upload-certificates',
+        uploadData,
+        {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      if (response.data.success) {
+        // Add uploaded certificates to form data
+        setFormData(prev => ({
+          ...prev,
+          certificates: [...prev.certificates, ...response.data.certificates]
+        }));
+        alert('Files uploaded successfully!');
+      }
+    } catch (error) {
+      console.error('File upload error:', error);
+      alert('Error uploading files. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // MODIFIED: Remove file handler
+  const handleRemoveFile = (index) => {
     setFormData(prev => ({
       ...prev,
-      certificates: [...prev.certificates, ...files.map(file => ({
-        name: file.name,
-        fileUrl: URL.createObjectURL(file)
-      }))]
+      certificates: prev.certificates.filter((_, i) => i !== index)
     }));
   };
 

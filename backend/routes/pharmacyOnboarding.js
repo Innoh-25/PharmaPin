@@ -1,6 +1,8 @@
 const express = require('express');
 const Pharmacy = require('../models/Pharmacy');
 const auth = require('../middleware/auth');
+const upload = require('../middleware/upload');
+
 const router = express.Router();
 
 // Check if pharmacist has completed pharmacy profile
@@ -26,6 +28,37 @@ router.get('/status', auth, async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// NEW ROUTE: Handle file uploads
+router.post('/upload-certificates', auth, upload.array('certificates', 5), async (req, res) => {
+  try {
+    if (req.user.role !== 'pharmacist') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'No files uploaded' });
+    }
+
+    const fileUrls = req.files.map(file => ({
+      name: file.originalname,
+      fileUrl: `/uploads/certificates/${file.filename}`,
+      uploadedAt: new Date()
+    }));
+
+    res.json({
+      success: true,
+      message: 'Files uploaded successfully',
+      certificates: fileUrls
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'File upload failed', 
+      error: error.message 
+    });
   }
 });
 

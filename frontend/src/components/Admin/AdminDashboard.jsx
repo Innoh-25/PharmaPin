@@ -181,6 +181,29 @@ const AdminDashboard = () => {
                       {pharmacy.description && (
                         <p><strong>Description:</strong> {pharmacy.description}</p>
                       )}
+
+                       {pharmacy.certificates && pharmacy.certificates.length > 0 && (
+                        <div className="pharmacy-certificates">
+                          <h4>Uploaded Certificates:</h4>
+                          <div className="certificates-list">
+                            {pharmacy.certificates.map((cert, index) => (
+                              <div key={index} className="certificate-item">
+                                <a 
+                                  href={`http://localhost:5000${cert.fileUrl}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="certificate-link"
+                                >
+                                  📄 {cert.name}
+                                </a>
+                                <span className="upload-date">
+                                  Uploaded: {new Date(cert.uploadedAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="pharmacy-actions">
                       <button 
