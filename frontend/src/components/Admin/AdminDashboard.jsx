@@ -12,6 +12,8 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [userManagementTab, setUserManagementTab] = useState('users');
+  const [selectedPharmacy, setSelectedPharmacy] = useState(null);
+  const [showPharmacyModal, setShowPharmacyModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -19,6 +21,15 @@ const AdminDashboard = () => {
     // Re-fetch admin data whenever the active tab changes so
     // users/pharmacies lists are loaded when their tab is selected.
     fetchAdminData();
+  }, [activeTab]);
+
+  // Ensure any open pharmacy detail modal is closed when switching tabs
+  useEffect(() => {
+    if (showPharmacyModal) {
+      setShowPharmacyModal(false);
+      setSelectedPharmacy(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const fetchAdminData = async () => {
@@ -171,6 +182,11 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleViewPharmacy = (pharmacy) => {
+    setSelectedPharmacy(pharmacy);
+    setShowPharmacyModal(true);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -190,7 +206,7 @@ const AdminDashboard = () => {
   }
 
   return (
-     <div className="admin-dashboard">
+    <div className="admin-dashboard">
       {/* Header - UNCHANGED */}
       <header className="admin-header">
         <div className="admin-header-content">
@@ -467,14 +483,12 @@ const AdminDashboard = () => {
                     </div>
                     <div className="action-buttons">
                       <button
-                        onClick={() => {
-                          // View pharmacy details
-                          console.log('View pharmacy:', pharmacy._id);
-                        }}
+                        onClick={() => handleViewPharmacy(pharmacy)}
                         className="btn-sm btn-info"
                       >
-                        View
+                        View Details
                       </button>
+
                       {pharmacy.status === 'pending_approval' && (
                         <>
                           <button
@@ -498,8 +512,49 @@ const AdminDashboard = () => {
             )}
           </div>
         )}
+
+          {/* Pharmacy Details Modal */}
+          {showPharmacyModal && selectedPharmacy && (
+            <div className="modal-overlay" onClick={() => { setShowPharmacyModal(false); setSelectedPharmacy(null); }}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <button className="modal-close" onClick={() => { setShowPharmacyModal(false); setSelectedPharmacy(null); }}>✕</button>
+                <h3>{selectedPharmacy.name}</h3>
+                <p><strong>Status:</strong> {selectedPharmacy.status}</p>
+                <p><strong>License:</strong> {selectedPharmacy.licenseNumber}</p>
+                <p><strong>Owner:</strong> {selectedPharmacy.owner?.firstName} {selectedPharmacy.owner?.lastName}</p>
+                <p><strong>Owner Email:</strong> {selectedPharmacy.owner?.email || selectedPharmacy.contact?.email}</p>
+                <p><strong>Owner Phone:</strong> {selectedPharmacy.owner?.phone || selectedPharmacy.contact?.phone}</p>
+                <p><strong>Address:</strong> {selectedPharmacy.address?.address}, {selectedPharmacy.address?.city}</p>
+                {selectedPharmacy.description && (
+                  <p><strong>Description:</strong> {selectedPharmacy.description}</p>
+                )}
+
+                {selectedPharmacy.certificates && selectedPharmacy.certificates.length > 0 && (
+                  <div className="pharmacy-certificates">
+                    <h4>Uploaded Certificates:</h4>
+                    <div className="certificates-list">
+                      {selectedPharmacy.certificates.map((cert, index) => (
+                        <div key={index} className="certificate-item">
+                          <a
+                            href={`http://localhost:5000${cert.fileUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="certificate-link"
+                          >
+                            📄 {cert.name}
+                          </a>
+                          <span className="upload-date">Uploaded: {new Date(cert.uploadedAt).toLocaleDateString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    
   );
 };
 
