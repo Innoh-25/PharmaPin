@@ -368,3 +368,284 @@
     flex-direction: row;
   }
 }
+
+
+/* Management Tabs */
+.management-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.management-tab {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: #666;
+}
+
+.management-tab:hover {
+  color: #1e3c72;
+}
+
+.management-tab.active {
+  color: #1e3c72;
+  border-bottom-color: #1e3c72;
+}
+
+/* Tables */
+.users-table-container,
+.pharmacies-table {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+  align-items: center;
+}
+
+.table-row:hover {
+  background: #f8f9fa;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+/* User and Pharmacy Info Styles */
+.user-info,
+.pharmacy-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-info strong,
+.pharmacy-info strong {
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.user-info small,
+.pharmacy-info small {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.role-info,
+.status-info {
+  display: flex;
+  align-items: center;
+}
+
+/* Badges */
+.role-badge,
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.role-patient {
+  background: #e7f5e7;
+  color: #2d7732;
+}
+
+.role-pharmacist {
+  background: #e7f0ff;
+  color: #1e3c72;
+}
+
+.role-admin {
+  background: #f5e7ff;
+  color: #6b21a8;
+}
+
+.status-pending_approval {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-draft {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-success {
+  background: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #218838;
+}
+
+.btn-warning {
+  background: #ffc107;
+  color: #212529;
+}
+
+.btn-warning:hover {
+  background: #e0a800;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+}
+
+.btn-info {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-info:hover {
+  background: #138496;
+}
+
+.btn-sm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Statistics Breakdown */
+.stat-breakdown {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-breakdown span {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Recent Activity */
+.recent-activity-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin-top: 2rem;
+}
+
+.recent-activity-section h3 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.activity-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.activity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+/* Responsive Design for Tables */
+@media (max-width: 1024px) {
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  
+  .table-header span:nth-child(n+4),
+  .table-row > div:nth-child(n+4) {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .management-tabs {
+    flex-direction: column;
+  }
+  
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-buttons {
+    justify-content: flex-start;
+  }
+}
+
+/* Content Sections */
+.admin-users-content,
+.admin-pharmacies-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
