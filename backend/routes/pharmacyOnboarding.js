@@ -24,6 +24,7 @@ router.get('/status', auth, async (req, res) => {
     res.json({
       hasPharmacy: true,
       status: pharmacy.status,
+      rejectionReason: pharmacy.rejectionReason,
       pharmacy: pharmacy
     });
   } catch (error) {
@@ -85,6 +86,7 @@ router.post('/complete-profile', auth, async (req, res) => {
     // Check if pharmacy already exists for this user
     let pharmacy = await Pharmacy.findOne({ owner: req.user.id });
 
+    // MODIFIED: Allow updates if pharmacy is rejected or draft
     if (pharmacy && pharmacy.status === 'approved') {
       return res.status(400).json({ 
         message: 'Pharmacy profile already approved and cannot be modified' 
@@ -105,12 +107,13 @@ router.post('/complete-profile', auth, async (req, res) => {
       services,
       description,
       certificates,
-      status: 'pending_approval',
+      status: 'pending_approval', // Reset to pending when resubmitting
+      rejectionReason: '', // Clear rejection reason when resubmitting
       isVerified: false
     };
 
     if (pharmacy) {
-      // Update existing pharmacy
+      // Update existing pharmacy (including rejected ones)
       pharmacy = await Pharmacy.findByIdAndUpdate(
         pharmacy._id,
         pharmacyData,
@@ -140,6 +143,7 @@ router.post('/complete-profile', auth, async (req, res) => {
     res.status(400).json({ message: 'Profile completion failed', error: error.message });
   }
 });
+
 
 // Get pharmacy profile for editing
 router.get('/profile', auth, async (req, res) => {

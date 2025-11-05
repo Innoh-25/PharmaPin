@@ -237,6 +237,37 @@ router.put('/users/:id', adminAuth, async (req, res) => {
   }
 });
 
+// Reject pharmacy with reason
+router.put('/pharmacies/:id/reject', adminAuth, async (req, res) => {
+  try {
+    const { rejectionReason } = req.body;
+    
+    if (!rejectionReason) {
+      return res.status(400).json({ message: 'Rejection reason is required' });
+    }
+
+    const pharmacy = await Pharmacy.findById(req.params.id);
+    
+    if (!pharmacy) {
+      return res.status(404).json({ message: 'Pharmacy not found' });
+    }
+
+    // UPDATE PHARMACY STATUS AND REASON (DON'T DELETE)
+    pharmacy.status = 'rejected';
+    pharmacy.rejectionReason = rejectionReason;
+    await pharmacy.save();
+
+    res.json({
+      success: true,
+      message: 'Pharmacy rejected successfully',
+      pharmacy: pharmacy
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // Get all pharmacies with detailed information
 router.get('/all-pharmacies', adminAuth, async (req, res) => {
   try {

@@ -1,15 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import '../../styles/Pharmacist.css';
 
 const PendingApproval = () => {
   const navigate = useNavigate();
+  const [pharmacyStatus, setPharmacyStatus] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    checkPharmacyStatus();
+  }, []);
+
+  const checkPharmacyStatus = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/api/pharmacy-onboarding/status', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      console.log('Status check:', response.data); // Debug log
+      
+      // Redirect if status is not pending_approval
+      if (response.data.hasPharmacy) {
+        if (response.data.status === 'approved') {
+          navigate('/pharmacist/dashboard');
+          return;
+        } else if (response.data.status === 'rejected') {
+          navigate('/pharmacist/rejected');
+          return;
+        }
+      }
+      
+      setPharmacyStatus(response.data);
+    } catch (error) {
+      console.error('Error checking pharmacy status:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     navigate('/login');
   };
+
+  if (loading) {
+    return (
+      <div className="pending-approval-container">
+        <div className="pending-approval-card">
+          <div className="loading-spinner"></div>
+          <p>Checking status...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pending-approval-container">

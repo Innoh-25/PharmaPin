@@ -14,6 +14,7 @@ import PendingApproval from './components/Pharmacist/PendingApproval';
 import PharmacistDashboard from './components/Pharmacist/PharmacistDashboard';
 import AdminLogin from './components/Admin/AdminLogin';
 import AdminDashboard from './components/Admin/AdminDashboard';
+import RejectedPharmacy from './components/Pharmacist/RejectedPharmacy'
 
 const ProtectedAdminRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
@@ -82,6 +83,7 @@ function App() {
               <Route path="onboarding" element={<PharmacyOnboarding />} />
               <Route path="pending-approval" element={<PendingApproval />} />
               <Route path="dashboard" element={<PharmacistDashboard />} />
+              <Route path="rejected" element={<RejectedPharmacy />} />
             </Route>
 
             <Route path="/secure-admin-access" element={<AdminLogin />} />

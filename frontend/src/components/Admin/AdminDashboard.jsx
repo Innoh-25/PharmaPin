@@ -14,6 +14,12 @@ const AdminDashboard = () => {
   const [userManagementTab, setUserManagementTab] = useState('users');
   const [selectedPharmacy, setSelectedPharmacy] = useState(null);
   const [showPharmacyModal, setShowPharmacyModal] = useState(false);
+  
+  // ADDED: State for rejection modal
+  const [rejectionModal, setRejectionModal] = useState({
+    isOpen: false,
+    pharmacy: null
+  });
 
   const navigate = useNavigate();
 
@@ -164,6 +170,33 @@ const AdminDashboard = () => {
     }
   };
 
+  // ADDED: New function to open rejection modal
+  const handleOpenRejectModal = (pharmacy) => {
+    setRejectionModal({
+      isOpen: true,
+      pharmacy: pharmacy
+    });
+  };
+
+  // ADDED: New function to confirm rejection with modal
+  const handleConfirmRejection = async (rejectionReason) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `http://localhost:5000/api/admin/pharmacies/${rejectionModal.pharmacy._id}/reject`, 
+        { rejectionReason },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setRejectionModal({ isOpen: false, pharmacy: null });
+      fetchAdminData();
+      alert('Pharmacy rejected successfully!');
+    } catch (error) {
+      alert('Error rejecting pharmacy');
+    }
+  };
+
+  // KEEP: Original reject function (for backward compatibility if needed)
   const handleRejectPharmacy = async (pharmacyId) => {
     const reason = prompt('Enter rejection reason:');
     if (reason) {
@@ -185,6 +218,58 @@ const AdminDashboard = () => {
   const handleViewPharmacy = (pharmacy) => {
     setSelectedPharmacy(pharmacy);
     setShowPharmacyModal(true);
+  };
+
+  // ADDED: RejectionModal component
+  const RejectionModal = ({ isOpen, onClose, onConfirm, pharmacy }) => {
+    const [rejectionReason, setRejectionReason] = useState('');
+
+    const handleSubmit = () => {
+      if (!rejectionReason.trim()) {
+        alert('Please provide a rejection reason');
+        return;
+      }
+      onConfirm(rejectionReason);
+      setRejectionReason('');
+    };
+
+    if (!isOpen) return null;
+
+    return (
+      <div className="modal-overlay">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h3>Reject Pharmacy Application</h3>
+            <button onClick={onClose} className="close-btn">&times;</button>
+          </div>
+          
+          <div className="modal-body">
+            <p>Please provide a reason for rejecting<strong>{pharmacy?.name}</strong>'s application:</p>
+            
+            <div className="form-group">
+              <label>Rejection Reason *</label>
+              <textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Explain what needs to be corrected or improved..."
+                rows="4"
+                required
+                className="form-textarea"
+              />
+            </div>
+          </div>
+          
+          <div className="modal-footer">
+            <button onClick={onClose} className="btn btn-secondary">
+              Cancel
+            </button>
+            <button onClick={handleSubmit} className="btn btn-danger">
+              Confirm Rejection
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const handleLogout = () => {
@@ -302,7 +387,7 @@ const AdminDashboard = () => {
         )}
 
         {activeTab === 'approvals' && (
-          // YOUR EXISTING APPROVALS CONTENT - UNCHANGED
+          // YOUR EXISTING APPROVALS CONTENT - MODIFIED REJECT BUTTON
           <div className="admin-approvals-content">
             <h2>Pending Pharmacy Approvals</h2>
             {pendingPharmacies.length === 0 ? (
@@ -354,8 +439,9 @@ const AdminDashboard = () => {
                       >
                         ✅ Approve
                       </button>
+                      {/* MODIFIED: Changed to use modal instead of prompt */}
                       <button 
-                        onClick={() => handleRejectPharmacy(pharmacy._id)}
+                        onClick={() => handleOpenRejectModal(pharmacy)}
                         className="admin-reject-btn"
                       >
                         ❌ Reject
@@ -497,8 +583,9 @@ const AdminDashboard = () => {
                           >
                             Approve
                           </button>
+                          {/* MODIFIED: Changed to use modal instead of prompt */}
                           <button
-                            onClick={() => handleRejectPharmacy(pharmacy._id)}
+                            onClick={() => handleOpenRejectModal(pharmacy)}
                             className="btn-sm btn-danger"
                           >
                             Reject
@@ -552,6 +639,14 @@ const AdminDashboard = () => {
               </div>
             </div>
           )}
+
+          {/* ADDED: Rejection Modal */}
+          <RejectionModal
+            isOpen={rejectionModal.isOpen}
+            onClose={() => setRejectionModal({ isOpen: false, pharmacy: null })}
+            onConfirm={handleConfirmRejection}
+            pharmacy={rejectionModal.pharmacy}
+          />
         </div>
       </div>
     

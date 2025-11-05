@@ -75,6 +75,9 @@ const Login = () => {
       } else if (status === 'pending_approval') {
         // Pharmacy profile submitted but pending approval
         navigate('/pharmacist/pending-approval');
+      } else if (status === 'rejected') {
+        // Pharmacy was rejected - send the pharmacist to the Rejected page
+        navigate('/pharmacist/rejected');
       } else if (status === 'approved') {
         // Pharmacy approved - redirect to dashboard
         navigate('/pharmacist/dashboard');

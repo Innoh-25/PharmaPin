@@ -41,25 +41,53 @@ const PharmacyOnboarding = () => {
   }, []);
 
   const checkPharmacyStatus = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/pharmacy-onboarding/status', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      if (response.data.hasPharmacy) {
-        if (response.data.status === 'approved') {
-          navigate('/pharmacist/dashboard');
-        } else if (response.data.status === 'pending_approval') {
-          navigate('/pharmacist/pending-approval');
-        } else {
-          setFormData(response.data.pharmacy);
-        }
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get('http://localhost:5000/api/pharmacy-onboarding/status', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    console.log('Onboarding status check:', response.data); // Debug log
+    
+    if (response.data.hasPharmacy) {
+      if (response.data.status === 'approved') {
+        navigate('/pharmacist/dashboard');
+      } else if (response.data.status === 'pending_approval') {
+        navigate('/pharmacist/pending-approval');
+      } else if (response.data.status === 'rejected') {
+        // Don't redirect to the Rejected page from onboarding; instead
+        // pre-fill the form with the rejected submission so the pharmacist
+        // can edit and resubmit. Navigating to the rejected page here
+        // would send the user back to the rejection screen immediately
+        // after they attempt to go to onboarding (causing a loop).
+        const p = response.data.pharmacy || {};
+        setFormData({
+          name: p.name || '',
+          licenseNumber: p.licenseNumber || '',
+          email: p.email || '',
+          phone: p.phone || '',
+          address: {
+            address: p.address?.address || '',
+            city: p.address?.city || ''
+          },
+          coordinates: p.location?.coordinates || [0, 0],
+          operatingHours: {
+            opening: p.operatingHours?.opening || '08:00',
+            closing: p.operatingHours?.closing || '20:00'
+          },
+          services: p.services || [],
+          description: p.description || '',
+          certificates: p.certificates || []
+        });
+      } else {
+        // If draft status, pre-fill form with existing data
+        setFormData(response.data.pharmacy);
       }
-    } catch (error) {
-      console.error('Error checking pharmacy status:', error);
     }
-  };
+  } catch (error) {
+    console.error('Error checking pharmacy status:', error);
+  }
+};
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

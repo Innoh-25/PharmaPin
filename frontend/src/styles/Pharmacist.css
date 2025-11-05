@@ -923,3 +923,127 @@
   border-left: 4px solid #28a745;
   font-weight: 500;
 }
+
+/* Rejection Styles */
+.pending-approval-card.rejected {
+  border-left: 4px solid #e74c3c;
+}
+
+.pending-icon.rejected {
+  background-color: #fee;
+  color: #e74c3c;
+}
+
+.rejection-reason {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+}
+
+.rejection-reason h3 {
+  margin: 0 0 8px 0;
+  color: #e74c3c;
+  font-size: 16px;
+}
+
+.rejection-reason p {
+  margin: 0;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.rejection-instruction {
+  color: #6c757d;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Rejection Specific Styles */
+.pending-approval-card.rejected {
+  border-left: 4px solid #e74c3c;
+  max-width: 600px;
+}
+
+.rejection-details {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.rejection-reason h3 {
+  margin: 0 0 10px 0;
+  color: #e74c3c;
+  font-size: 16px;
+}
+
+.rejection-text {
+  background: white;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 3px solid #e74c3c;
+  font-style: italic;
+  color: #555;
+  margin: 0;
+}
+
+.pharmacy-info-summary {
+  margin-top: 20px;
+}
+
+.pharmacy-info-summary h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 14px;
+}
+
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.info-item strong {
+  color: #333;
+  min-width: 120px;
+}
+
+.info-item span {
+  color: #666;
+  text-align: right;
+}
+
+.rejection-instruction {
+  color: #6c757d;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.pending-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #ddd;
+  color: #666;
+}
+
+.btn-outline:hover {
+  background: #f8f9fa;
+}
