@@ -1764,3 +1764,237 @@
   margin-top: 0.5rem;
   overflow-x: auto;
 }
+
+/* Back Button */
+.header-with-back {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.back-button {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.back-button:hover {
+  background: #4b5563;
+}
+
+/* Drug Description */
+.drug-description {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0.5rem 0 0 0;
+  line-height: 1.4;
+}
+
+/* Custom Category Management */
+.category-management {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.category-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.empty-categories {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+  border: 2px dashed #e5e7eb;
+  border-radius: 8px;
+}
+
+/* Custom Category Tabs */
+.custom-category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.custom-category-tab-container {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.custom-category-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.custom-category-tab:hover {
+  border-color: #3b82f6;
+}
+
+.custom-category-tab.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.category-name {
+  font-weight: 500;
+}
+
+.delete-category-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.delete-category-btn:hover {
+  opacity: 1;
+}
+
+/* Category Input */
+.category-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.category-selection {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.category-selection select {
+  flex: 1;
+}
+
+.category-note {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* No Categories Message */
+.no-categories-message {
+  background: white;
+  border-radius: 12px;
+  padding: 3rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.message-content h3 {
+  margin: 0 0 1rem 0;
+  color: #111827;
+}
+
+.message-content p {
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.message-examples {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  text-align: left;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.message-examples ul {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.5rem;
+}
+
+.message-examples li {
+  color: #6b7280;
+  margin: 0.25rem 0;
+}
+
+.btn-large {
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+}
+
+/* Category Examples */
+.category-examples {
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.category-examples p {
+  margin: 0;
+}
+
+/* Field Note */
+.field-note {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+/* Full width form group */
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Price unit styling */
+.price-unit-display {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* Simplified inventory form */
+.simplified-form .form-grid {
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Field note styling */
+.field-note {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  font-style: italic;
+}

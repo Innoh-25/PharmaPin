@@ -227,4 +227,83 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Delete drug (pharmacist only - permanent delete)
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'pharmacist') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    // Find pharmacist's pharmacy
+    const pharmacy = await Pharmacy.findOne({ owner: req.user.id });
+    if (!pharmacy) {
+      return res.status(404).json({ message: 'Pharmacy not found' });
+    }
+
+    const drug = await Drug.findOne({ 
+      _id: req.params.id, 
+      pharmacy: pharmacy._id 
+    });
+    
+    if (!drug) {
+      return res.status(404).json({ message: 'Drug not found' });
+    }
+
+    // First delete from inventory if it exists
+    await Inventory.deleteMany({ 
+      drug: drug._id, 
+      pharmacy: pharmacy._id 
+    });
+
+    // Then delete the drug permanently
+    await Drug.findByIdAndDelete(drug._id);
+
+    res.json({ message: 'Drug deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting drug:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Update drug (pharmacist only)
+router.put('/:id', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'pharmacist') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    // Find pharmacist's pharmacy
+    const pharmacy = await Pharmacy.findOne({ owner: req.user.id });
+    if (!pharmacy) {
+      return res.status(404).json({ message: 'Pharmacy not found' });
+    }
+
+    const drug = await Drug.findOne({ 
+      _id: req.params.id, 
+      pharmacy: pharmacy._id 
+    });
+
+    if (!drug) {
+      return res.status(404).json({ message: 'Drug not found' });
+    }
+
+    // Update drug fields
+    const allowedUpdates = ['name', 'genericName', 'brand', 'description', 'category', 'form', 'strength', 'prescriptionRequired', 'manufacturer', 'barcode', 'dosageInstructions'];
+    const updates = Object.keys(req.body);
+    const isValidOperation = updates.every(update => allowedUpdates.includes(update));
+
+    if (!isValidOperation) {
+      return res.status(400).json({ message: 'Invalid updates' });
+    }
+
+    updates.forEach(update => drug[update] = req.body[update]);
+    await drug.save();
+
+    res.json(drug);
+  } catch (error) {
+    console.error('Error updating drug:', error);
+    res.status(400).json({ message: 'Update failed', error: error.message });
+  }
+});
+
 module.exports = router;

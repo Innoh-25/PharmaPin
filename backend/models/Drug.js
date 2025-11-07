@@ -24,12 +24,8 @@ const drugSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, 'Category is required'],
-    enum: [
-      'antibiotics', 'analgesics', 'antipyretics', 'antidepressants', 
-      'antihypertensives', 'diabetes', 'cardiology', 'respiratory',
-      'gastrointestinal', 'dermatology', 'vitamins', 'supplements',
-      'first-aid', 'contraceptives', 'other'
-    ]
+    trim: true,
+    maxlength: [50, 'Category name cannot exceed 50 characters']
   },
   form: {
     type: String,

@@ -5,17 +5,17 @@ import '../../styles/Pharmacist.css';
 const AddDrugModal = ({ isOpen, onClose, onDrugAdded }) => {
   const [formData, setFormData] = useState({
     drug: '',
-    quantity: '',
     price: '',
-    discount: 0,
-    expiryDate: '',
-    batchNumber: '',
-    supplier: '',
-    minStockLevel: 10,
-    maxStockLevel: 100
+    priceUnit: 'tablet', // New field for price unit
+    isAvailable: true, // Simplified stock status
   });
   const [availableDrugs, setAvailableDrugs] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const priceUnits = [
+    'tablet', 'capsule', 'bottle', 'syrup', 'injection', 
+    'tube', 'pack', 'dose', 'piece', 'other'
+  ];
 
   useEffect(() => {
     if (isOpen) {
@@ -37,10 +37,10 @@ const AddDrugModal = ({ isOpen, onClose, onDrugAdded }) => {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -50,7 +50,20 @@ const AddDrugModal = ({ isOpen, onClose, onDrugAdded }) => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/inventory', formData, {
+      
+      // Convert form data to inventory format
+      const inventoryData = {
+        drug: formData.drug,
+        price: parseFloat(formData.price),
+        isAvailable: formData.isAvailable,
+        // Set default values for required fields
+        quantity: formData.isAvailable ? 1 : 0,
+        expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
+        minStockLevel: 0,
+        maxStockLevel: 100
+      };
+
+      await axios.post('http://localhost:5000/api/inventory', inventoryData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -69,14 +82,9 @@ const AddDrugModal = ({ isOpen, onClose, onDrugAdded }) => {
   const resetForm = () => {
     setFormData({
       drug: '',
-      quantity: '',
       price: '',
-      discount: 0,
-      expiryDate: '',
-      batchNumber: '',
-      supplier: '',
-      minStockLevel: 10,
-      maxStockLevel: 100
+      priceUnit: 'tablet',
+      isAvailable: true,
     });
   };
 
@@ -123,7 +131,7 @@ const AddDrugModal = ({ isOpen, onClose, onDrugAdded }) => {
                 <option value="">Choose a drug...</option>
                 {availableDrugs.map(drug => (
                   <option key={drug._id} value={drug._id}>
-                    {drug.name} {drug.genericName && `(${drug.genericName})`} - {drug.form} {drug.strength.value && `${drug.strength.value}${drug.strength.unit}`}
+                    {drug.name} {drug.genericName && `(${drug.genericName})`} - {drug.form}
                   </option>
                 ))}
               </select>
@@ -131,18 +139,6 @@ const AddDrugModal = ({ isOpen, onClose, onDrugAdded }) => {
           </div>
 
           <div className="form-grid">
-            <div className="form-group">
-              <label>Quantity *</label>
-              <input
-                type="number"
-                name="quantity"
-                value={formData.quantity}
-                onChange={handleInputChange}
-                min="0"
-                required
-              />
-            </div>
-
             <div className="form-group">
               <label>Price (KSh) *</label>
               <input
@@ -153,76 +149,39 @@ const AddDrugModal = ({ isOpen, onClose, onDrugAdded }) => {
                 min="0"
                 step="0.01"
                 required
+                placeholder="0.00"
               />
             </div>
 
             <div className="form-group">
-              <label>Discount (%)</label>
-              <input
-                type="number"
-                name="discount"
-                value={formData.discount}
-                onChange={handleInputChange}
-                min="0"
-                max="100"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Expiry Date *</label>
-              <input
-                type="date"
-                name="expiryDate"
-                value={formData.expiryDate}
+              <label>Price Per *</label>
+              <select
+                name="priceUnit"
+                value={formData.priceUnit}
                 onChange={handleInputChange}
                 required
-              />
+              >
+                {priceUnits.map(unit => (
+                  <option key={unit} value={unit}>
+                    {unit.charAt(0).toUpperCase() + unit.slice(1)}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Batch Number</label>
+          <div className="form-group checkbox-group">
+            <label className="checkbox-label">
               <input
-                type="text"
-                name="batchNumber"
-                value={formData.batchNumber}
+                type="checkbox"
+                name="isAvailable"
+                checked={formData.isAvailable}
                 onChange={handleInputChange}
-                placeholder="Optional"
               />
-            </div>
-
-            <div className="form-group">
-              <label>Supplier</label>
-              <input
-                type="text"
-                name="supplier"
-                value={formData.supplier}
-                onChange={handleInputChange}
-                placeholder="Optional"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Min Stock Level</label>
-              <input
-                type="number"
-                name="minStockLevel"
-                value={formData.minStockLevel}
-                onChange={handleInputChange}
-                min="0"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Max Stock Level</label>
-              <input
-                type="number"
-                name="maxStockLevel"
-                value={formData.maxStockLevel}
-                onChange={handleInputChange}
-                min="0"
-              />
+              <span>In Stock</span>
+            </label>
+            <div className="field-note">
+              Uncheck if this drug is currently out of stock
             </div>
           </div>
 
