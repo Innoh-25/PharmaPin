@@ -12,9 +12,13 @@ import PharmacistLayout from './components/Layout/PharmacistLayout';
 import PharmacyOnboarding from './components/Pharmacist/PharmacyOnboarding';
 import PendingApproval from './components/Pharmacist/PendingApproval';
 import PharmacistDashboard from './components/Pharmacist/PharmacistDashboard';
+import ManageInventory from './components/Pharmacist/ManageInventory';
+import ViewOrders from './components/Pharmacist/ViewOrders';
 import AdminLogin from './components/Admin/AdminLogin';
 import AdminDashboard from './components/Admin/AdminDashboard';
-import RejectedPharmacy from './components/Pharmacist/RejectedPharmacy'
+import RejectedPharmacy from './components/Pharmacist/RejectedPharmacy';
+import DrugClassManager from './components/Pharmacist/DrugClassManager';
+import InventoryDrugs from './components/Pharmacist/InventoryDrugs';
 
 const ProtectedAdminRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
@@ -84,6 +88,10 @@ function App() {
               <Route path="pending-approval" element={<PendingApproval />} />
               <Route path="dashboard" element={<PharmacistDashboard />} />
               <Route path="rejected" element={<RejectedPharmacy />} />
+              <Route path="inventory" element={<ManageInventory />} />
+              <Route path="orders" element={<ViewOrders />} />
+              <Route path="manage-drugs" element={<DrugClassManager />} />
+              <Route path="inventory-drugs" element={<InventoryDrugs />} />
             </Route>
 
             <Route path="/secure-admin-access" element={<AdminLogin />} />

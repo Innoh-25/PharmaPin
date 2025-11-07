@@ -49,6 +49,11 @@ const drugSchema = new mongoose.Schema({
   manufacturer: String,
   sideEffects: [String],
   dosageInstructions: String,
+  pharmacy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Pharmacy',
+    required: true
+  },
   isActive: {
     type: Boolean,
     default: true
@@ -57,9 +62,9 @@ const drugSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for search functionality
+// Compound index for pharmacy-specific drug search
+drugSchema.index({ pharmacy: 1, name: 1 });
+drugSchema.index({ pharmacy: 1, category: 1 });
 drugSchema.index({ name: 'text', genericName: 'text', description: 'text' });
-drugSchema.index({ category: 1 });
-drugSchema.index({ prescriptionRequired: 1 });
 
 module.exports = mongoose.model('Drug', drugSchema);

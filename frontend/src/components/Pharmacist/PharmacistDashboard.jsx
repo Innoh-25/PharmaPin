@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import AddDrugModal from './AddDrugModal';
 import '../../styles/Pharmacist.css';
 
 const PharmacistDashboard = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [pharmacy, setPharmacy] = useState(null);
   const [stats, setStats] = useState({
     totalOrders: 0,
@@ -14,6 +17,7 @@ const PharmacistDashboard = () => {
   });
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAddDrugModal, setShowAddDrugModal] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -48,6 +52,36 @@ const PharmacistDashboard = () => {
 
   const handleLogout = () => {
     logout();
+  };
+
+  const handleQuickAction = (action) => {
+    switch (action) {
+      case 'manage-drugs':
+        navigate('/pharmacist/manage-drugs');
+        break;
+      case 'view-inventory':
+        navigate('/pharmacist/inventory-drugs');
+        break;
+      case 'add-drug':
+        setShowAddDrugModal(true);
+        break;
+      case 'manage-inventory':
+        navigate('/pharmacist/inventory');
+        break;
+      case 'view-orders':
+        navigate('/pharmacist/orders');
+        break;
+      case 'reports':
+        navigate('/pharmacist/reports');
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleDrugAdded = () => {
+    // Refresh dashboard data when new drug is added
+    fetchDashboardData();
   };
 
   if (loading) {
@@ -215,7 +249,10 @@ const PharmacistDashboard = () => {
             </div>
             <div className="section-content">
               <div className="quick-actions-grid">
-                <button className="action-card">
+                <button 
+                  className="action-card"
+                  onClick={() => handleQuickAction('add-drug')}
+                >
                   <div className="action-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -224,7 +261,10 @@ const PharmacistDashboard = () => {
                   <p className="action-label">Add Drug</p>
                 </button>
 
-                <button className="action-card">
+                <button 
+                  className="action-card"
+                  onClick={() => handleQuickAction('manage-inventory')}
+                >
                   <div className="action-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -233,7 +273,10 @@ const PharmacistDashboard = () => {
                   <p className="action-label">Manage Inventory</p>
                 </button>
 
-                <button className="action-card">
+                <button 
+                  className="action-card"
+                  onClick={() => handleQuickAction('view-orders')}
+                >
                   <div className="action-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -242,7 +285,10 @@ const PharmacistDashboard = () => {
                   <p className="action-label">View Orders</p>
                 </button>
 
-                <button className="action-card">
+                <button 
+                  className="action-card"
+                  onClick={() => handleQuickAction('reports')}
+                >
                   <div className="action-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -250,12 +296,45 @@ const PharmacistDashboard = () => {
                   </div>
                   <p className="action-label">Reports</p>
                 </button>
+
+                <button 
+                  className="action-card"
+                  onClick={() => handleQuickAction('manage-drugs')}
+                >
+                  <div className="action-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  </div>
+                  <p className="action-label">Manage Drugs</p>
+                </button>
+
+                <button 
+                  className="action-card"
+                  onClick={() => handleQuickAction('view-inventory')}
+                >
+                  <div className="action-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                    </svg>
+                  </div>
+                  <p className="action-label">View Inventory</p>
+                </button>
               </div>
+
             </div>
           </div>
         </div>
       </div>
+      <AddDrugModal
+        isOpen={showAddDrugModal}
+        onClose={() => setShowAddDrugModal(false)}
+        onDrugAdded={handleDrugAdded}
+      />
     </div>
+
+
+  
   );
 };
 

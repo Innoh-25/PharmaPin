@@ -12,8 +12,19 @@ router.post('/', auth, async (req, res) => {
     if (req.user.role !== 'pharmacist') {
       return res.status(403).json({ message: 'Only pharmacists can manage inventory' });
     }
+    // Ensure the inventory item is associated with the pharmacist's pharmacy
+    const pharmacy = await Pharmacy.findOne({ owner: req.user.id });
+    if (!pharmacy) {
+      return res.status(400).json({ message: 'Pharmacy profile not found for this user' });
+    }
 
-    const inventory = new Inventory(req.body);
+    // Merge provided body with the pharmacy id
+    const inventoryData = {
+      ...req.body,
+      pharmacy: pharmacy._id
+    };
+
+    const inventory = new Inventory(inventoryData);
     await inventory.save();
     
     await inventory.populate('drug');
