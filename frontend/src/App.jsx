@@ -88,7 +88,7 @@ function App() {
     <Router>
       <AuthProvider>
         <div className="App">
-          <Navbar />
+          {/* <Navbar /> */}
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />

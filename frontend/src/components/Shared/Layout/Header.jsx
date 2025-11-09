@@ -31,17 +31,18 @@ const Header = () => {
                 <Link to="/patient/profile" className="nav-link">
                   👤 Profile
                 </Link>
-                <button 
-                  onClick={logout} 
-                  className="btn"
+                <Link 
+                  to="/login"
                   style={{ 
                     background: 'var(--accent-color)',
                     color: 'white',
-                    padding: '0.5rem 1rem'
+                    padding: '0.5rem 1rem',
+                    textDecorationLine: 'none',
+                    borderRadius:'var(--border-radius)'
                   }}
                 >
                   Logout
-                </button>
+                </Link>
               </div>
             </>
           ) : (
