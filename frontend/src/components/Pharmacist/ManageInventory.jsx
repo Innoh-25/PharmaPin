@@ -9,6 +9,7 @@ const ManageInventory = () => {
   const [loading, setLoading] = useState(true);
   const [editingItem, setEditingItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   useEffect(() => {
     fetchInventory();
@@ -44,10 +45,26 @@ const ManageInventory = () => {
     }
   };
 
-  const filteredInventory = inventory.filter(item =>
-    item.drug?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.drug?.genericName?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Get unique categories from inventory
+  const categories = [...new Set(inventory.map(item => item.drug?.category).filter(Boolean))].sort();
+
+  // Filter inventory based on search and category
+  const filteredInventory = inventory.filter(item => {
+    const matchesSearch = item.drug?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.drug?.genericName?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || item.drug?.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Group inventory by category
+  const groupedInventory = filteredInventory.reduce((acc, item) => {
+    const category = item.drug?.category || 'Uncategorized';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(item);
+    return acc;
+  }, {});
 
   if (loading) {
     return (
@@ -72,6 +89,16 @@ const ManageInventory = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="filter-select"
+          >
+            <option value="all">All Categories</option>
+            {categories.map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -83,72 +110,70 @@ const ManageInventory = () => {
             </svg>
             <p>No inventory items found</p>
             <p className="empty-state-subtitle">
-              {searchTerm ? 'Try adjusting your search' : 'Add your first drug to get started'}
+              {searchTerm || selectedCategory !== 'all' ? 'Try adjusting your search' : 'Add your first drug to get started'}
             </p>
           </div>
         ) : (
-          <div className="inventory-grid">
-            {filteredInventory.map((item) => (
-              <div key={item._id} className="inventory-card">
-                <div className="inventory-card-header">
-                  <h3>{item.drug?.name}</h3>
-                  {item.drug?.genericName && (
-                    <p className="drug-generic">({item.drug.genericName})</p>
-                  )}
-                </div>
+          <div className="inventory-categories">
+            {Object.keys(groupedInventory).map(category => (
+              <div key={category} className="inventory-category">
+                <h3 className="category-title">{category} ({groupedInventory[category].length})</h3>
+                <div className="inventory-grid">
+                  {groupedInventory[category].map((item) => (
+                    <div key={item._id} className="inventory-card">
+                      <div className="inventory-card-header">
+                        <h3>{item.drug?.name}</h3>
+                        {item.drug?.genericName && (
+                          <p className="drug-generic">({item.drug.genericName})</p>
+                        )}
+                      </div>
 
-                <div className="inventory-details">
-                  <div className="detail-row">
-                    <span>Quantity:</span>
-                    <span className={`quantity ${item.quantity <= item.minStockLevel ? 'low-stock' : ''}`}>
-                      {item.quantity} {item.quantity <= item.minStockLevel && '⚠️'}
-                    </span>
-                  </div>
-                  
-                  <div className="detail-row">
-                    <span>Price:</span>
-                    <span>KSh {item.price?.toLocaleString()}</span>
-                  </div>
+                      <div className="inventory-details">
+                        <div className="detail-row">
+                          <span>Price:</span>
+                          <span>KSh {item.price?.toLocaleString()} per {item.priceUnit}</span>
+                        </div>
+                        
+                        <div className="detail-row">
+                          <span>Status:</span>
+                          <span className={`status ${item.isAvailable ? 'available' : 'unavailable'}`}>
+                            {item.isAvailable ? 'In Stock' : 'Out of Stock'}
+                          </span>
+                        </div>
 
-                  {item.discount > 0 && (
-                    <div className="detail-row">
-                      <span>Discount:</span>
-                      <span className="discount">{item.discount}%</span>
+                        <div className="detail-row">
+                          <span>Form:</span>
+                          <span className="drug-form">{item.drug?.form}</span>
+                        </div>
+
+                        {item.drug?.prescriptionRequired && (
+                          <div className="detail-row">
+                            <span>Prescription:</span>
+                            <span className="prescription-required">Required</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="inventory-actions">
+                        <button
+                          onClick={() => setEditingItem(item)}
+                          className="btn btn-primary btn-sm"
+                        >
+                          Edit
+                        </button>
+                      </div>
+
+                      {/* Edit Modal */}
+                      {editingItem?._id === item._id && (
+                        <EditInventoryModal
+                          item={item}
+                          onSave={handleUpdateInventory}
+                          onClose={() => setEditingItem(null)}
+                        />
+                      )}
                     </div>
-                  )}
-
-                  <div className="detail-row">
-                    <span>Expiry:</span>
-                    <span className={new Date(item.expiryDate) < new Date() ? 'expired' : ''}>
-                      {new Date(item.expiryDate).toLocaleDateString()}
-                    </span>
-                  </div>
-
-                  <div className="detail-row">
-                    <span>Status:</span>
-                    <span className={`status ${item.isAvailable ? 'available' : 'unavailable'}`}>
-                      {item.isAvailable ? 'Available' : 'Unavailable'}
-                    </span>
-                  </div>
+                  ))}
                 </div>
-
-                <div className="inventory-actions">
-                  <button
-                    onClick={() => setEditingItem(item)}
-                    className="btn btn-primary btn-sm"
-                  >
-                    Edit
-                  </button>
-                </div>
-
-                {/* Edit Modal */}
-                {editingItem?._id === item._id && (
-                  <EditInventoryModal
-                    item={item}
-                    onSave={handleUpdateInventory}
-                    onClose={() => setEditingItem(null)}
-                  />
-                )}
               </div>
             ))}
           </div>
@@ -158,18 +183,19 @@ const ManageInventory = () => {
   );
 };
 
-// Edit Inventory Modal Component
+// Updated Edit Inventory Modal Component
 const EditInventoryModal = ({ item, onSave, onClose }) => {
   const [formData, setFormData] = useState({
-    quantity: item.quantity,
-    price: item.price,
-    discount: item.discount,
-    expiryDate: item.expiryDate.split('T')[0],
-    isAvailable: item.isAvailable,
-    minStockLevel: item.minStockLevel,
-    maxStockLevel: item.maxStockLevel
+    price: item.price || '',
+    priceUnit: item.priceUnit || 'tablet',
+    isAvailable: item.isAvailable || true
   });
   const [loading, setLoading] = useState(false);
+
+  const priceUnits = [
+    'tablet', 'capsule', 'bottle', 'syrup', 'injection', 
+    'tube', 'pack', 'dose', 'piece', 'other'
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -197,18 +223,6 @@ const EditInventoryModal = ({ item, onSave, onClose }) => {
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-grid">
             <div className="form-group">
-              <label>Quantity *</label>
-              <input
-                type="number"
-                name="quantity"
-                value={formData.quantity}
-                onChange={handleInputChange}
-                min="0"
-                required
-              />
-            </div>
-
-            <div className="form-group">
               <label>Price (KSh) *</label>
               <input
                 type="number"
@@ -222,48 +236,19 @@ const EditInventoryModal = ({ item, onSave, onClose }) => {
             </div>
 
             <div className="form-group">
-              <label>Discount (%)</label>
-              <input
-                type="number"
-                name="discount"
-                value={formData.discount}
-                onChange={handleInputChange}
-                min="0"
-                max="100"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Expiry Date *</label>
-              <input
-                type="date"
-                name="expiryDate"
-                value={formData.expiryDate}
+              <label>Price Per *</label>
+              <select
+                name="priceUnit"
+                value={formData.priceUnit}
                 onChange={handleInputChange}
                 required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Min Stock Level</label>
-              <input
-                type="number"
-                name="minStockLevel"
-                value={formData.minStockLevel}
-                onChange={handleInputChange}
-                min="0"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Max Stock Level</label>
-              <input
-                type="number"
-                name="maxStockLevel"
-                value={formData.maxStockLevel}
-                onChange={handleInputChange}
-                min="0"
-              />
+              >
+                {priceUnits.map(unit => (
+                  <option key={unit} value={unit}>
+                    {unit.charAt(0).toUpperCase() + unit.slice(1)}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -275,7 +260,7 @@ const EditInventoryModal = ({ item, onSave, onClose }) => {
                 checked={formData.isAvailable}
                 onChange={handleInputChange}
               />
-              <span>Available for sale</span>
+              <span>In Stock</span>
             </label>
           </div>
 

@@ -6,7 +6,8 @@ const InventoryDrugs = () => {
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [editingItem, setEditingItem] = useState(null);
 
   useEffect(() => {
     fetchInventory();
@@ -28,18 +29,37 @@ const InventoryDrugs = () => {
     }
   };
 
+  const handleUpdateInventory = async (itemId, updates) => {
+    try {
+      await axios.put(`http://localhost:5000/api/inventory/${itemId}`, updates);
+      alert('Inventory updated successfully!');
+      setEditingItem(null);
+      fetchInventory(); // Refresh data
+    } catch (error) {
+      console.error('Error updating inventory:', error);
+      alert('Error updating inventory');
+    }
+  };
+
+  // Get unique categories from inventory
+  const categories = [...new Set(inventory.map(item => item.drug?.category).filter(Boolean))].sort();
+
   const filteredInventory = inventory.filter(item => {
     const matchesSearch = item.drug?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.drug?.genericName?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || item.drug?.category === categoryFilter;
+    const matchesCategory = selectedCategory === 'all' || item.drug?.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const getStockStatus = (item) => {
-    if (item.quantity === 0) return 'out-of-stock';
-    if (item.quantity <= item.minStockLevel) return 'low-stock';
-    return 'in-stock';
-  };
+  // Group inventory by category
+  const groupedInventory = filteredInventory.reduce((acc, item) => {
+    const category = item.drug?.category || 'Uncategorized';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(item);
+    return acc;
+  }, {});
 
   if (loading) {
     return (
@@ -69,21 +89,19 @@ const InventoryDrugs = () => {
           className="search-input"
         />
         <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
           className="filter-select"
         >
           <option value="all">All Categories</option>
-          <option value="antibiotics">Antibiotics</option>
-          <option value="analgesics">Analgesics</option>
-          <option value="antipyretics">Antipyretics</option>
-          <option value="antidepressants">Antidepressants</option>
-          <option value="other">Other</option>
+          {categories.map(category => (
+            <option key={category} value={category}>{category}</option>
+          ))}
         </select>
       </div>
 
       {/* Inventory Grid */}
-      <div className="inventory-drugs-grid">
+      <div className="inventory-drugs-content">
         {filteredInventory.length === 0 ? (
           <div className="empty-state">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,93 +109,194 @@ const InventoryDrugs = () => {
             </svg>
             <p>No drugs found in inventory</p>
             <p className="empty-state-subtitle">
-              {searchTerm || categoryFilter !== 'all' 
+              {searchTerm || selectedCategory !== 'all' 
                 ? 'Try adjusting your search criteria' 
                 : 'Add drugs to your inventory to get started'
               }
             </p>
           </div>
         ) : (
-          filteredInventory.map((item) => (
-            <div key={item._id} className={`inventory-drug-card ${getStockStatus(item)}`}>
-              <div className="drug-card-header">
-                <h3>{item.drug?.name}</h3>
-                {item.drug?.genericName && (
-                  <p className="drug-generic">({item.drug.genericName})</p>
-                )}
-                <div className="drug-category">{item.drug?.category}</div>
-              </div>
+          <div className="inventory-categories">
+            {Object.keys(groupedInventory).map(category => (
+              <div key={category} className="inventory-category">
+                <h3 className="category-title">{category} ({groupedInventory[category].length})</h3>
+                <div className="inventory-drugs-grid">
+                  {groupedInventory[category].map((item) => (
+                    <div key={item._id} className={`inventory-drug-card ${item.isAvailable ? 'in-stock' : 'out-of-stock'}`}>
+                      <div className="drug-card-header">
+                        <h3>{item.drug?.name}</h3>
+                        {item.drug?.genericName && (
+                          <p className="drug-generic">({item.drug.genericName})</p>
+                        )}
+                        <div className="drug-category">{item.drug?.category}</div>
+                      </div>
 
-              <div className="inventory-details">
-                <div className="stock-info">
-                  <div className="quantity-display">
-                    <span className="quantity-number">{item.quantity}</span>
-                    <span className="quantity-label">in stock</span>
-                  </div>
-                  <div className="stock-status">
-                    <span className={`status-dot ${getStockStatus(item)}`}></span>
-                    {getStockStatus(item) === 'out-of-stock' && 'Out of Stock'}
-                    {getStockStatus(item) === 'low-stock' && 'Low Stock'}
-                    {getStockStatus(item) === 'in-stock' && 'In Stock'}
-                  </div>
-                </div>
+                      <div className="inventory-details">
+                        <div className="stock-info">
+                          <div className="stock-status">
+                            <span className={`status-dot ${item.isAvailable ? 'in-stock' : 'out-of-stock'}`}></span>
+                            {item.isAvailable ? 'In Stock' : 'Out of Stock'}
+                          </div>
+                        </div>
 
-                <div className="pricing-info">
-                  <div className="price-main">
-                    KSh {item.price?.toLocaleString()}
-                  </div>
-                  {item.discount > 0 && (
-                    <div className="price-discount">
-                      <span className="original-price">
-                        KSh {(item.price / (1 - item.discount / 100)).toLocaleString()}
-                      </span>
-                      <span className="discount-badge">-{item.discount}%</span>
+                        <div className="pricing-info">
+                          <div className="price-main">
+                            KSh {item.price?.toLocaleString()}
+                          </div>
+                          <div className="price-unit">
+                            per {item.priceUnit}
+                          </div>
+                        </div>
+
+                        <div className="inventory-meta">
+                          <div className="meta-item">
+                            <span className="meta-label">Form:</span>
+                            <span className="meta-value">{item.drug?.form}</span>
+                          </div>
+                          
+                          {item.drug?.prescriptionRequired && (
+                            <div className="meta-item">
+                              <span className="meta-label">Prescription:</span>
+                              <span className="meta-value prescription">Required</span>
+                            </div>
+                          )}
+
+                          <div className="meta-item">
+                            <span className="meta-label">Added:</span>
+                            <span className="meta-value">
+                              {new Date(item.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="inventory-actions">
+                        <button 
+                          onClick={() => setEditingItem(item)}
+                          className="btn btn-primary btn-sm"
+                        >
+                          Edit
+                        </button>
+                      </div>
+
+                      {/* Edit Modal */}
+                      {editingItem?._id === item._id && (
+                        <EditInventoryModal
+                          item={item}
+                          onSave={handleUpdateInventory}
+                          onClose={() => setEditingItem(null)}
+                        />
+                      )}
                     </div>
-                  )}
-                </div>
-
-                <div className="inventory-meta">
-                  <div className="meta-item">
-                    <span className="meta-label">Expiry:</span>
-                    <span className={`meta-value ${new Date(item.expiryDate) < new Date() ? 'expired' : ''}`}>
-                      {new Date(item.expiryDate).toLocaleDateString()}
-                    </span>
-                  </div>
-                  
-                  {item.batchNumber && (
-                    <div className="meta-item">
-                      <span className="meta-label">Batch:</span>
-                      <span className="meta-value">{item.batchNumber}</span>
-                    </div>
-                  )}
-
-                  <div className="meta-item">
-                    <span className="meta-label">Stock Levels:</span>
-                    <span className="meta-value">
-                      Min: {item.minStockLevel} | Max: {item.maxStockLevel}
-                    </span>
-                  </div>
-
-                  {item.supplier && (
-                    <div className="meta-item">
-                      <span className="meta-label">Supplier:</span>
-                      <span className="meta-value">{item.supplier}</span>
-                    </div>
-                  )}
+                  ))}
                 </div>
               </div>
-
-              <div className="inventory-actions">
-                <button className="btn btn-primary btn-sm">
-                  Update Stock
-                </button>
-                <button className="btn btn-secondary btn-sm">
-                  Edit Price
-                </button>
-              </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
+      </div>
+    </div>
+  );
+};
+
+// Edit Inventory Modal Component
+const EditInventoryModal = ({ item, onSave, onClose }) => {
+  const [formData, setFormData] = useState({
+    price: item.price || '',
+    priceUnit: item.priceUnit || 'tablet',
+    isAvailable: item.isAvailable || true
+  });
+  const [loading, setLoading] = useState(false);
+
+  const priceUnits = [
+    'tablet', 'capsule', 'bottle', 'syrup', 'injection', 
+    'tube', 'pack', 'dose', 'piece', 'other'
+  ];
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    await onSave(item._id, formData);
+    setLoading(false);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h2>Edit Inventory - {item.drug?.name}</h2>
+          <button className="close-btn" onClick={onClose}>×</button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="modal-form">
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Price (KSh) *</label>
+              <input
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                min="0"
+                step="0.01"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Price Per *</label>
+              <select
+                name="priceUnit"
+                value={formData.priceUnit}
+                onChange={handleInputChange}
+                required
+              >
+                {priceUnits.map(unit => (
+                  <option key={unit} value={unit}>
+                    {unit.charAt(0).toUpperCase() + unit.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="form-group checkbox-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                name="isAvailable"
+                checked={formData.isAvailable}
+                onChange={handleInputChange}
+              />
+              <span>In Stock</span>
+            </label>
+          </div>
+
+          <div className="modal-actions">
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary"
+            >
+              {loading ? 'Updating...' : 'Update Inventory'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

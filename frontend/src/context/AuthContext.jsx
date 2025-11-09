@@ -19,6 +19,10 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
+  const [patientProfile, setPatientProfile] = useState(null);
+  const [patientAddresses, setPatientAddresses] = useState([]);
+  const [patientOrders, setPatientOrders] = useState([]);
+
   // Set auth token for all requests
   useEffect(() => {
     if (token) {
@@ -36,9 +40,17 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           const response = await axios.get(`${API_BASE_URL}/auth/me`);
-          setUser(response.data.data);
+          // Ensure we use the fetched user object consistently
+          const userData = response.data.data;
+          setUser(userData);
+
+          // Load patient-specific data if user is a patient
+          if (userData?.role === 'patient') {
+            await loadPatientData();
+          }
         } catch (error) {
           console.error('Auth check failed:', error);
+          // Remove invalid/expired token from storage and state
           localStorage.removeItem('token');
           setToken(null);
         }
@@ -73,6 +85,11 @@ export const AuthProvider = ({ children }) => {
       setUser(data);
       setToken(data.token);
 
+      // Load patient data if user is a patient
+      if (data.role === 'patient') {
+        await loadPatientData();
+      }
+
       // Check pharmacy status for pharmacists
       if (data.role === 'pharmacist') {
         const pharmacyStatus = await checkPharmacyStatus(data.token);
@@ -92,6 +109,12 @@ export const AuthProvider = ({ children }) => {
       setUser(data);
       setToken(data.token);
 
+      // Initialize patient profile if user is a patient
+      if (data.role === 'patient') {
+        await initializePatientProfile(data.id);
+        await loadPatientData();
+      }
+
       // For pharmacists, we'll handle redirection after registration
       if (data.role === 'pharmacist') {
         return { user: data, requiresOnboarding: true };
@@ -106,11 +129,194 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
+
+    setPatientProfile(null);
+    setPatientAddresses([]);
+    setPatientOrders([]);
     localStorage.removeItem('token');
   };
 
   const updateUser = (userData) => {
     setUser(prev => ({ ...prev, ...userData }));
+  };
+
+  // Patient-specific methods
+
+  const loadPatientData = async () => {
+    try {
+      // Load patient profile
+      const profileResponse = await axios.get(`${API_BASE_URL}/patients/profile`);
+      setPatientProfile(profileResponse.data.data);
+
+      // Load patient addresses
+      const addressesResponse = await axios.get(`${API_BASE_URL}/patients/addresses`);
+      setPatientAddresses(addressesResponse.data.data);
+
+      // Load recent orders
+      const ordersResponse = await axios.get(`${API_BASE_URL}/patients/orders?limit=5`);
+      setPatientOrders(ordersResponse.data.data);
+    } catch (error) {
+      console.error('Failed to load patient data:', error);
+    }
+  };
+
+  const initializePatientProfile = async (userId) => {
+    try {
+      await axios.post(`${API_BASE_URL}/patients/profile`, {
+        userId,
+        medicalHistory: '',
+        allergies: '',
+        emergencyContact: ''
+      });
+    } catch (error) {
+      console.error('Failed to initialize patient profile:', error);
+    }
+  };
+
+  // Patient profile management
+  const updatePatientProfile = async (profileData) => {
+    try {
+      const response = await axios.put(`${API_BASE_URL}/patients/profile`, profileData);
+      setPatientProfile(response.data.data);
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to update profile');
+    }
+  };
+
+  // Address management
+  const addPatientAddress = async (addressData) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/patients/addresses`, addressData);
+      setPatientAddresses(prev => [...prev, response.data.data]);
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to add address');
+    }
+  };
+
+  const updatePatientAddress = async (addressId, addressData) => {
+    try {
+      const response = await axios.put(`${API_BASE_URL}/patients/addresses/${addressId}`, addressData);
+      setPatientAddresses(prev => 
+        prev.map(addr => addr._id === addressId ? response.data.data : addr)
+      );
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to update address');
+    }
+  };
+
+  const deletePatientAddress = async (addressId) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/patients/addresses/${addressId}`);
+      setPatientAddresses(prev => prev.filter(addr => addr._id !== addressId));
+      return { success: true };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to delete address');
+    }
+  };
+
+  const setDefaultAddress = async (addressId) => {
+    try {
+      const response = await axios.patch(`${API_BASE_URL}/patients/addresses/${addressId}/set-default`);
+      setPatientAddresses(prev => 
+        prev.map(addr => ({
+          ...addr,
+          isDefault: addr._id === addressId
+        }))
+      );
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to set default address');
+    }
+  };
+
+  // Order management
+  const getPatientOrders = async (filters = {}) => {
+    try {
+      const queryParams = new URLSearchParams(filters).toString();
+      const response = await axios.get(`${API_BASE_URL}/patients/orders?${queryParams}`);
+      setPatientOrders(response.data.data);
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch orders');
+    }
+  };
+
+  const getPatientOrderDetails = async (orderId) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/patients/orders/${orderId}`);
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch order details');
+    }
+  };
+
+  const cancelPatientOrder = async (orderId, reason) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/patients/orders/${orderId}/cancel`, { reason });
+      // Update local orders state
+      setPatientOrders(prev => 
+        prev.map(order => 
+          order._id === orderId ? response.data.data : order
+        )
+      );
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to cancel order');
+    }
+  };
+
+  // Favorite pharmacies
+  const getFavoritePharmacies = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/patients/favorites/pharmacies`);
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch favorite pharmacies');
+    }
+  };
+
+  const toggleFavoritePharmacy = async (pharmacyId) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/patients/favorites/pharmacies/${pharmacyId}/toggle`);
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to toggle favorite pharmacy');
+    }
+  };
+
+  // Medical history
+  const updateMedicalHistory = async (medicalData) => {
+    try {
+      const response = await axios.put(`${API_BASE_URL}/patients/medical-history`, medicalData);
+      setPatientProfile(prev => ({ ...prev, ...response.data.data }));
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to update medical history');
+    }
+  };
+
+  // Prescription management
+  const uploadPrescription = async (prescriptionData) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/patients/prescriptions`, prescriptionData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to upload prescription');
+    }
+  };
+
+  const getPrescriptions = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/patients/prescriptions`);
+      return { success: true, data: response.data.data };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch prescriptions');
+    }
   };
 
   const value = {
@@ -121,7 +327,25 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateUser,
-    checkPharmacyStatus
+    checkPharmacyStatus,
+    // Patient-specific values and methods
+    patientProfile,
+    patientAddresses,
+    patientOrders,
+    updatePatientProfile,
+    addPatientAddress,
+    updatePatientAddress,
+    deletePatientAddress,
+    setDefaultAddress,
+    getPatientOrders,
+    getPatientOrderDetails,
+    cancelPatientOrder,
+    getFavoritePharmacies,
+    toggleFavoritePharmacy,
+    updateMedicalHistory,
+    uploadPrescription,
+    getPrescriptions,
+    loadPatientData 
   };
 
   return (
@@ -131,4 +355,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export default AuthContext;
+export { AuthContext };
+export default AuthProvider;

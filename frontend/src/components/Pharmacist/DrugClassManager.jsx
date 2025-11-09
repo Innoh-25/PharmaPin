@@ -190,6 +190,7 @@ const DrugClassManager = () => {
           <button
             onClick={() => setShowAddCategoryModal(true)}
             className="btn btn-primary"
+            style={{position:'relative',width:'30%'}}
           >
             + New Category
           </button>
@@ -245,6 +246,7 @@ const DrugClassManager = () => {
             <button
               onClick={() => setShowAddDrugModal(true)}
               className="btn btn-primary"
+              style={{position:'relative',width:'30%'}}
             >
               Add Drug to {selectedCategory}
             </button>
@@ -262,6 +264,7 @@ const DrugClassManager = () => {
               <button
                 onClick={() => setShowAddDrugModal(true)}
                 className="btn btn-primary"
+                style={{position:'relative',width:'30%'}}
               >
                 Add First Drug
               </button>

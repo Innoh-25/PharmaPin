@@ -362,8 +362,6 @@
   position: relative;
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   color: white;
-  margin-top: 20px;
-  width: 30%;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -1997,4 +1995,115 @@
   color: #6b7280;
   margin-top: 0.25rem;
   font-style: italic;
+}
+
+/* Inventory Categories */
+.inventory-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.inventory-category {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.category-title {
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e5e7eb;
+  color: #111827;
+  font-size: 1.25rem;
+}
+
+/* Header Actions */
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Inventory Grid Layout */
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+/* Drug Form Styling */
+.drug-form {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Prescription Required */
+.prescription-required {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.meta-value.prescription {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Price Unit */
+.price-unit {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* Stock Status Dot */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.status-dot.in-stock {
+  background: #059669;
+}
+
+.status-dot.out-of-stock {
+  background: #dc2626;
+}
+
+/* Inventory Drugs Content */
+.inventory-drugs-content {
+  margin-top: 1rem;
+}
+
+/* Simplified Stock Info */
+.stock-info {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stock-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 500;
 }

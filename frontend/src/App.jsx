@@ -20,6 +20,19 @@ import RejectedPharmacy from './components/Pharmacist/RejectedPharmacy';
 import DrugClassManager from './components/Pharmacist/DrugClassManager';
 import InventoryDrugs from './components/Pharmacist/InventoryDrugs';
 
+//Patient
+import PatientLayout from './components/Shared/Layout/PatientLayout';
+import PatientDashboard from './components/Patient/Dashboard/PatientDashboard';
+import DrugSearch from './components/Patient/Search/DrugSearch';
+import SearchResults from './components/Patient/Search/SearchResults';
+import PharmacyDetail from './components/Patient/PharmacyDetail';
+import Checkout from './components/Patient/Checkout';
+import OrderTracking from './components/Patient/OrderTracking';
+import PatientProfile from './components/Patient/Profile';
+import HelpSupport from './components/Patient/HelpSupport';
+import OrderHistory from './components/Patient/Orders/OrderHistory';
+import OrderDetails from './components/Patient/Orders/OrderDetails';
+
 const ProtectedAdminRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -94,8 +107,37 @@ function App() {
               <Route path="inventory-drugs" element={<InventoryDrugs />} />
             </Route>
 
+            {/* Admin routes */}
             <Route path="/secure-admin-access" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
+            {/* Patient routes */}
+
+            <Route path="/patient" element={<PatientLayout />}>
+              <Route index element={<PatientDashboard />} />
+              <Route path="dashboard" element={<PatientDashboard />} />
+              <Route path="search" element={<DrugSearch />} />
+              <Route path="search-results" element={<SearchResults />} />
+              <Route path="pharmacy/:id" element={<PharmacyDetail />} />
+              <Route path="checkout" element={<Checkout />} />
+              <Route path="orders" element={<OrderHistory />} />
+              <Route path="orders/:id" element={<OrderDetails />} />
+              <Route path="orders/:id/tracking" element={<OrderTracking />} />
+              <Route path="profile" element={<PatientProfile />} />
+              <Route path="help" element={<HelpSupport />} />
+            </Route>
+
+            {/* Standalone patient routes for direct access */}
+            <Route path="/search" element={
+              <PatientLayout>
+                <SearchResults />
+              </PatientLayout>
+            } />
+            <Route path="/drugs/:id" element={
+              <PatientLayout>
+                <PharmacyDetail />
+              </PatientLayout>
+            } />
 
           </Routes>
         </div>
