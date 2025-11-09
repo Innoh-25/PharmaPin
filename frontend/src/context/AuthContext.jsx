@@ -144,32 +144,46 @@ export const AuthProvider = ({ children }) => {
 
   const loadPatientData = async () => {
     try {
-      // Load patient profile
-      const profileResponse = await axios.get(`${API_BASE_URL}/patients/profile`);
-      setPatientProfile(profileResponse.data.data);
+      // Only try to load patient data if user is a patient
+      if (user?.role !== 'patient') return;
 
-      // Load patient addresses
-      const addressesResponse = await axios.get(`${API_BASE_URL}/patients/addresses`);
-      setPatientAddresses(addressesResponse.data.data);
+      try {
+        // Load patient profile
+        const profileResponse = await axios.get(`${API_BASE_URL}/patients/profile`);
+        setPatientProfile(profileResponse.data.data);
+      } catch (profileError) {
+        console.log('Patient profile endpoint not ready yet');
+      }
 
-      // Load recent orders
-      const ordersResponse = await axios.get(`${API_BASE_URL}/patients/orders?limit=5`);
-      setPatientOrders(ordersResponse.data.data);
+      try {
+        // Load patient addresses
+        const addressesResponse = await axios.get(`${API_BASE_URL}/patients/addresses`);
+        setPatientAddresses(addressesResponse.data.data);
+      } catch (addressError) {
+        console.log('Patient addresses endpoint not ready yet');
+      }
+
+      try {
+        // Load recent orders
+        const ordersResponse = await axios.get(`${API_BASE_URL}/patients/orders?limit=5`);
+        setPatientOrders(ordersResponse.data.data);
+      } catch (ordersError) {
+        console.log('Patient orders endpoint not ready yet');
+      }
+
     } catch (error) {
-      console.error('Failed to load patient data:', error);
+      console.log('Patient data loading in progress');
     }
   };
 
   const initializePatientProfile = async (userId) => {
     try {
+      // Just create an empty patient profile
       await axios.post(`${API_BASE_URL}/patients/profile`, {
-        userId,
-        medicalHistory: '',
-        allergies: '',
-        emergencyContact: ''
+        userId
       });
     } catch (error) {
-      console.error('Failed to initialize patient profile:', error);
+      console.log('Patient profile initialization in progress');
     }
   };
 
@@ -287,38 +301,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Medical history
-  const updateMedicalHistory = async (medicalData) => {
-    try {
-      const response = await axios.put(`${API_BASE_URL}/patients/medical-history`, medicalData);
-      setPatientProfile(prev => ({ ...prev, ...response.data.data }));
-      return { success: true, data: response.data.data };
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to update medical history');
-    }
-  };
-
-  // Prescription management
-  const uploadPrescription = async (prescriptionData) => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/patients/prescriptions`, prescriptionData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      return { success: true, data: response.data.data };
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to upload prescription');
-    }
-  };
-
-  const getPrescriptions = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/patients/prescriptions`);
-      return { success: true, data: response.data.data };
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch prescriptions');
-    }
-  };
-
   const value = {
     user,
     token,
@@ -342,9 +324,6 @@ export const AuthProvider = ({ children }) => {
     cancelPatientOrder,
     getFavoritePharmacies,
     toggleFavoritePharmacy,
-    updateMedicalHistory,
-    uploadPrescription,
-    getPrescriptions,
     loadPatientData 
   };
 

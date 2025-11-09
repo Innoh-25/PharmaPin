@@ -1,4 +1,7 @@
-/* frontend/src/App.css - PharmaPin Modern Styling */
+
+@import './styles/Patient.css';
+
+
 * {
   margin: 0;
   padding: 0;

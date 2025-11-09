@@ -1,106 +1,233 @@
+// src/components/Patient/Dashboard/PatientDashboard.jsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 import QuickSearch from './QuickSearch';
 import RecentOrders from './RecentOrders';
 import NearbyPharmacies from './NearbyPharmacies';
+import LocationSelector from './LocationSelector';
 
 const PatientDashboard = () => {
   const [userLocation, setUserLocation] = useState(null);
+  const [locationError, setLocationError] = useState('');
+  const { user, patientProfile, patientOrders } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Simple geolocation - in real app, use the hook
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.log('Location access denied or unavailable');
-        }
-      );
+    // Try to get saved location first
+    const savedLocation = localStorage.getItem('userLocation');
+    if (savedLocation) {
+      setUserLocation(JSON.parse(savedLocation));
+    } else {
+      // Fallback to geolocation
+      getCurrentLocation();
     }
   }, []);
 
+  const getCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const location = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+          setUserLocation(location);
+          // Save to localStorage for future use
+          localStorage.setItem('userLocation', JSON.stringify(location));
+          setLocationError('');
+        },
+        (error) => {
+          console.log('Location access denied or unavailable:', error);
+          setLocationError('Enable location for better pharmacy recommendations');
+          // Set default Nairobi coordinates as fallback
+          const defaultLocation = {
+            latitude: -1.2921,
+            longitude: 36.8219,
+            address: 'Nairobi, Kenya'
+          };
+          setUserLocation(defaultLocation);
+          localStorage.setItem('userLocation', JSON.stringify(defaultLocation));
+        }
+      );
+    } else {
+      setLocationError('Geolocation is not supported by your browser');
+      // Set default location
+      const defaultLocation = {
+        latitude: -1.2921,
+        longitude: 36.8219,
+        address: 'Nairobi, Kenya'
+      };
+      setUserLocation(defaultLocation);
+      localStorage.setItem('userLocation', JSON.stringify(defaultLocation));
+    }
+  };
+
+  const handleLocationChange = (newLocation) => {
+    setUserLocation(newLocation);
+    localStorage.setItem('userLocation', JSON.stringify(newLocation));
+    setLocationError('');
+  };
+
+  const handleQuickAction = (category) => {
+    navigate(`/patient/search?category=${category}`);
+  };
+
+  const handleViewAllPharmacies = () => {
+    navigate('/patient/search?view=pharmacies');
+  };
+
   return (
     <div className="patient-dashboard">
-      <div className="dashboard-header" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ 
-          fontSize: '2.5rem',
-          marginBottom: '1rem',
-          background: 'linear-gradient(135deg, var(--primary-color), var(--secondary-color))',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
-        }}>
-          Find Your Medications
-        </h1>
-        <p style={{ fontSize: '1.2rem', color: 'var(--text-light)' }}>
-          Search for drugs, compare prices, and get them delivered to your doorstep
-        </p>
+      {/* Welcome Message */}
+      {user && (
+        <div className="welcome-banner">
+          <h2>Welcome back, {user.name || 'Patient'}! 👋</h2>
+          <p>Ready to find your medications?</p>
+        </div>
+      )}
+
+      {/* Location Selector */}
+      <LocationSelector onLocationChange={handleLocationChange} />
+
+      {/* Dashboard Header */}
+      <div className="dashboard-header">
+        <h1>Find Your Medications</h1>
+        <p>Search for drugs, compare prices, and get them delivered to your doorstep</p>
       </div>
 
+      {/* Quick Search */}
       <QuickSearch />
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '2fr 1fr',
-        gap: '2rem',
-        marginTop: '3rem'
-      }}>
-        <div>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            marginBottom: '1.5rem'
-          }}>
-            <h2>Nearby Pharmacies</h2>
-            <Link to="/search?filter=pharmacies" className="nav-link">View All</Link>
+      {/* Main Dashboard Grid */}
+      <div className="dashboard-grid">
+        {/* Nearby Pharmacies Section */}
+        <div className="dashboard-section">
+          <div className="section-header">
+            <h2>📍 Nearby Pharmacies</h2>
+            <button 
+              onClick={handleViewAllPharmacies}
+              className="view-all-link"
+            >
+              View All
+            </button>
           </div>
           <NearbyPharmacies userLocation={userLocation} />
         </div>
 
-        <div>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            marginBottom: '1.5rem'
-          }}>
-            <h2>Recent Orders</h2>
-            <Link to="/patient/orders" className="nav-link">View All</Link>
+        {/* Recent Orders Section */}
+        <div className="dashboard-section">
+          <div className="section-header">
+            <h2>📦 Recent Orders</h2>
+            <Link to="/patient/orders" className="view-all-link">
+              View All
+            </Link>
           </div>
           <RecentOrders />
         </div>
       </div>
 
-      <div style={{ marginTop: '3rem' }}>
-        <h2 style={{ marginBottom: '1.5rem' }}>Quick Actions</h2>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1rem'
-        }}>
-          <Link to="/search?category=painkillers" className="feature-card" style={{ textDecoration: 'none' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>💊</div>
-            <h3>Pain Relief</h3>
-          </Link>
-          <Link to="/search?category=antibiotics" className="feature-card" style={{ textDecoration: 'none' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🦠</div>
-            <h3>Antibiotics</h3>
-          </Link>
-          <Link to="/search?category=vitamins" className="feature-card" style={{ textDecoration: 'none' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🌿</div>
-            <h3>Vitamins</h3>
-          </Link>
-          <Link to="/search" className="feature-card" style={{ textDecoration: 'none' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🔍</div>
-            <h3>All Medications</h3>
-          </Link>
+      {/* Quick Actions */}
+      <div className="quick-actions-section">
+        <h2>🚀 Quick Actions</h2>
+        <div className="quick-actions-grid">
+          <div 
+            className="action-card"
+            onClick={() => handleQuickAction('pain-relief')}
+          >
+            <div className="action-icon">💊</div>
+            <div className="action-content">
+              <h3>Pain Relief</h3>
+              <p>Paracetamol, Ibuprofen, Aspirin</p>
+            </div>
+          </div>
+
+          <div 
+            className="action-card"
+            onClick={() => handleQuickAction('antibiotics')}
+          >
+            <div className="action-icon">🦠</div>
+            <div className="action-content">
+              <h3>Antibiotics</h3>
+              <p>Amoxicillin, Azithromycin</p>
+            </div>
+          </div>
+
+          <div 
+            className="action-card"
+            onClick={() => handleQuickAction('vitamins')}
+          >
+            <div className="action-icon">🌿</div>
+            <div className="action-content">
+              <h3>Vitamins</h3>
+              <p>Vitamin C, Multivitamins</p>
+            </div>
+          </div>
+
+          <div 
+            className="action-card"
+            onClick={() => navigate('/patient/search')}
+          >
+            <div className="action-icon">🔍</div>
+            <div className="action-content">
+              <h3>All Medications</h3>
+              <p>Browse complete catalog</p>
+            </div>
+          </div>
+
+          <div 
+            className="action-card"
+            onClick={() => navigate('/patient/profile')}
+          >
+            <div className="action-icon">👤</div>
+            <div className="action-content">
+              <h3>My Profile</h3>
+              <p>Manage addresses & preferences</p>
+            </div>
+          </div>
+
+          <div 
+            className="action-card"
+            onClick={() => navigate('/patient/orders')}
+          >
+            <div className="action-icon">📋</div>
+            <div className="action-content">
+              <h3>Order History</h3>
+              <p>View all past orders</p>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Stats Overview */}
+      <div className="stats-overview">
+        <div className="stat-card">
+          <div className="stat-number">{patientOrders?.length || 0}</div>
+          <div className="stat-label">Total Orders</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">
+            {patientProfile?.favoritePharmacies?.length || 0}
+          </div>
+          <div className="stat-label">Favorite Pharmacies</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">
+            {patientProfile?.addresses?.length || 0}
+          </div>
+          <div className="stat-label">Saved Addresses</div>
+        </div>
+      </div>
+
+      {/* Location Error Warning */}
+      {locationError && (
+        <div className="location-warning">
+          <p>⚠️ {locationError}</p>
+          <button onClick={getCurrentLocation} className="btn btn-secondary btn-sm">
+            Try Again
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -14,6 +14,8 @@ const orderRoutes = require('./routes/orders');
 const pharmacyOnboardingRoutes = require('./routes/pharmacyOnboarding');
 const adminAuthRoutes = require('./routes/adminAuth');
 const adminRoutes = require('./routes/admin');
+const patientRoutes = require('./routes/patients');
+const patientSearchRoutes = require('./routes/patientSearch');
 
 dotenv.config();
 
@@ -35,6 +37,7 @@ app.use('/api/pharmacy-onboarding', pharmacyOnboardingRoutes);
 app.use('/api/drugs', drugRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/patients', patientRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

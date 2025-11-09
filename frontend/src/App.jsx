@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route , useNavigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import axios from 'axios';
 import './App.css';
 
 // Components
@@ -32,6 +33,7 @@ import PatientProfile from './components/Patient/Profile';
 import HelpSupport from './components/Patient/HelpSupport';
 import OrderHistory from './components/Patient/Orders/OrderHistory';
 import OrderDetails from './components/Patient/Orders/OrderDetails';
+import DrugDetails from './components/Patient/DrugDetails/DrugDetails'
 
 const ProtectedAdminRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
@@ -125,14 +127,15 @@ function App() {
               <Route path="orders/:id/tracking" element={<OrderTracking />} />
               <Route path="profile" element={<PatientProfile />} />
               <Route path="help" element={<HelpSupport />} />
+              <Route path="drug-details" element={<DrugDetails />} />
             </Route>
 
             {/* Standalone patient routes for direct access */}
-            <Route path="/search" element={
+            {/* <Route path="/search" element={
               <PatientLayout>
-                <SearchResults />
+                <DrugSearch />
               </PatientLayout>
-            } />
+            } /> */}
             <Route path="/drugs/:id" element={
               <PatientLayout>
                 <PharmacyDetail />
