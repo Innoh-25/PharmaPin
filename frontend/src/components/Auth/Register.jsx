@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -286,7 +288,7 @@ const Register = () => {
                 className="password-toggle"
                 onClick={togglePasswordVisibility}
               >
-                {showPassword ? '🙈' : '👁️'}
+                <FontAwesomeIcon style={{color:'var(--primary-dark)'}} icon={showPassword ? faEyeSlash : faEye} />
               </button>
             </div>
             
@@ -333,7 +335,7 @@ const Register = () => {
                 className="password-toggle"
                 onClick={toggleConfirmPasswordVisibility}
               >
-                {showConfirmPassword ? '🙈' : '👁️'}
+                <FontAwesomeIcon style={{color:'var(--primary-dark)'}} icon={showConfirmPassword ? faEyeSlash : faEye} />
               </button>
             </div>
             {confirmPassword && (
