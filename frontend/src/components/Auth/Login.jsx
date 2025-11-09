@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -98,6 +100,23 @@ const Login = () => {
   return (
     <div className="auth-container">
       <div className="auth-form">
+        <div style={{ 
+        textAlign: 'center', 
+        marginBottom: '2rem',
+        border:'none',
+        borderRadius:'var(--border-radius)',
+        backgroundColor:'var(--gray-light)'
+      }}>
+        <h1 style={{ 
+          fontSize: '2.5rem',
+          background: 'linear-gradient(135deg, var(--primary-color), var(--secondary-color))',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+        }}>
+          PharmaPin
+        </h1>
+      </div>
         <h2>Login to Your Account</h2>
         <form onSubmit={onSubmit}>
           <div className="form-group">
@@ -130,7 +149,7 @@ const Login = () => {
                 onClick={togglePasswordVisibility}
                 disabled={loading}
               >
-                {showPassword ? '🙈' : '👁️'}
+                <FontAwesomeIcon style={{color:'var(--primary-dark)'}} icon={showPassword ? faEyeSlash : faEye} />
               </button>
             </div>
           </div>

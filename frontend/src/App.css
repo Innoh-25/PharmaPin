@@ -13,6 +13,7 @@
   --success-color: #4cc9f0;
   --text-dark: #2b2d42;
   --text-light: #6c757d;
+  --gray-light: #b6c3ced8;
   --bg-light: #f8f9fa;
   --bg-white: #ffffff;
   --border-color: #e9ecef;
@@ -183,6 +184,7 @@ main {
 /* Auth Pages */
 .auth-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 80vh;
