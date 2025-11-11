@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AddDrugModal from './AddDrugModal';
+import LocationSetupModal from './LocationSetupModal';
 import '../../styles/Pharmacist.css';
 
 const PharmacistDashboard = () => {
@@ -18,17 +19,42 @@ const PharmacistDashboard = () => {
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddDrugModal, setShowAddDrugModal] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [locationSet, setLocationSet] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
-  const fetchDashboardData = async () => {
+  // fetchDashboardData optionally skips reopening the location modal when called
+  // immediately after the user has set the location (to avoid a race with the backend)
+  const fetchDashboardData = async (skipModalOpen = false) => {
     try {
       setLoading(true);
       
       const pharmacyResponse = await axios.get('http://localhost:5000/api/pharmacy-onboarding/profile');
       setPharmacy(pharmacyResponse.data);
+
+      // CHECK LOCATION STATUS
+      try {
+        const locationResponse = await axios.get('http://localhost:5000/api/pharmacy-location/location-status');
+        console.log('Location status response:', locationResponse.data); //debug log
+        setLocationSet(locationResponse.data.locationSet);
+
+        // Show location modal if pharmacy is approved but location not set
+        // Skip this behavior when caller asked to (e.g., after user confirmed location)
+        if (!skipModalOpen && pharmacyResponse.data.status === 'approved' && !locationResponse.data.locationSet) {
+          setShowLocationModal(true);
+        }
+      } catch (locationError) {
+        console.log('Location status check failed, endpoint might not exist yet');
+
+        // If endpoint doesn't exist, avoid using possibly-stale `locationSet` state value.
+        // Do not forcibly reopen the modal here; instead assume the app will open it when
+        // appropriate on a subsequent check or via explicit user action.
+        // This prevents a race where `handleLocationSet` sets the state and immediately
+        // calls fetchDashboardData which would read the old state and reopen the modal.
+      }
 
       const ordersResponse = await axios.get('http://localhost:5000/api/orders/pharmacy-orders?limit=5');
       setRecentOrders(ordersResponse.data.orders || []);
@@ -48,6 +74,14 @@ const PharmacistDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLocationSet = () => {
+    // Mark location set locally and close modal immediately to avoid reopening during fetch
+    setLocationSet(true);
+    setShowLocationModal(false);
+    // Refresh dashboard data but skip the modal re-open check to avoid a race condition
+    fetchDashboardData(true);
   };
 
   const handleLogout = () => {
@@ -97,6 +131,12 @@ const PharmacistDashboard = () => {
 
   return (
     <div className="dashboard-container">
+      {/* Location Setup Modal */}
+      <LocationSetupModal
+        isOpen={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        onLocationSet={handleLocationSet}
+      />
       {/* Header */}
       <header className="dashboard-header">
         <div className="header-content">

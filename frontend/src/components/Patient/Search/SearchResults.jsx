@@ -15,30 +15,64 @@ const SearchResults = () => {
     priceRange: [0, 10000],
     inStock: true
   });
+  const [userLocation, setUserLocation] = useState(null);
 
   const query = searchParams.get('q');
   const category = searchParams.get('category');
 
   useEffect(() => {
-    if (query || category) {
+    getUserLocation();
+  }, []);
+
+  useEffect(() => {
+    if ((query || category) && userLocation) {
       performSearch();
     }
-  }, [query, category, filters]);
+  }, [query, category, filters, userLocation]);
+
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const location = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          };
+          setUserLocation(location);
+          localStorage.setItem('userLocation', JSON.stringify(location));
+        },
+        (error) => {
+          console.warn('Location access denied, using default location');
+          // Use a default location (e.g., Nairobi center)
+          const defaultLocation = {
+            latitude: -1.2921,
+            longitude: 36.8219
+          };
+          setUserLocation(defaultLocation);
+        }
+      );
+    }
+  };
 
   const performSearch = async () => {
+    if (!userLocation) return;
+    
     setLoading(true);
     setError(null);
     
     try {
-      const searchData = {
-        searchTerm: query,
-        category: category,
-        filters: filters,
-        userLocation: JSON.parse(localStorage.getItem('userLocation')) // Get saved location
-      };
+      const response = await axios.get('http://localhost:5000/api/pharmacies', {
+        params: {
+          search: query,
+          category: category,
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude,
+          maxDistance: filters.distance * 1000, // Convert km to meters
+          inStock: filters.inStock
+        }
+      });
 
-      const response = await axios.post('http://localhost:5000/api/patients/search', searchData);
-      setResults(response.data.data);
+      setResults(response.data.pharmacies);
     } catch (err) {
       setError(err.response?.data?.message || 'Search failed');
       console.error('Search error:', err);
@@ -49,6 +83,16 @@ const SearchResults = () => {
 
   const updateFilters = (newFilters) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
+  };
+
+  const getDirections = (pharmacy) => {
+    if (pharmacy.location && pharmacy.location.coordinates) {
+      const [lng, lat] = pharmacy.location.coordinates;
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+      window.open(url, '_blank');
+    } else {
+      alert('Directions not available for this pharmacy');
+    }
   };
 
   if (loading) {
@@ -65,7 +109,16 @@ const SearchResults = () => {
         <h1>
           {query ? `Search Results for "${query}"` : category ? `${category.replace('-', ' ').toUpperCase()}` : 'All Medications'}
         </h1>
-        <p className="results-count">{results.length} medications found</p>
+        <p className="results-count">{results.length} pharmacies found</p>
+        
+        {/* Location status */}
+        <div className="location-status">
+          {userLocation ? (
+            <span className="location-badge">📍 Searching near your location</span>
+          ) : (
+            <span className="location-badge warning">📍 Using default location</span>
+          )}
+        </div>
       </div>
 
       {/* Search Filters */}
@@ -102,18 +155,42 @@ const SearchResults = () => {
       )}
 
       <div className="results-grid">
-        {results.map((result) => (
-          <SearchResultCard 
-            key={`${result.drug._id}-${result.pharmacy._id}`} 
-            result={result} 
-            onSelect={() => navigate(`/patient/drug-details`, { state: { result } })}
-          />
+        {results.map((pharmacy) => (
+          <div key={pharmacy._id} className="pharmacy-card">
+            <div className="pharmacy-header">
+              <h3>{pharmacy.name}</h3>
+              <span className="distance-badge">
+                {pharmacy.distance ? `${(pharmacy.distance / 1000).toFixed(1)}km` : 'Nearby'}
+              </span>
+            </div>
+            
+            <div className="pharmacy-info">
+              <p className="pharmacy-address">📍 {pharmacy.address.address}</p>
+              <p className="pharmacy-contact">📞 {pharmacy.contact.phone}</p>
+              <p className="pharmacy-hours">🕒 {pharmacy.operatingHours.open} - {pharmacy.operatingHours.close}</p>
+            </div>
+
+            <div className="pharmacy-actions">
+              <button 
+                onClick={() => navigate(`/patient/pharmacy/${pharmacy._id}`)}
+                className="btn btn-secondary"
+              >
+                View Pharmacy
+              </button>
+              <button 
+                onClick={() => getDirections(pharmacy)}
+                className="btn btn-primary"
+              >
+                Get Directions
+              </button>
+            </div>
+          </div>
         ))}
       </div>
 
       {results.length === 0 && !loading && (
         <div className="no-results">
-          <h3>No medications found</h3>
+          <h3>No pharmacies found</h3>
           <p>Try adjusting your search terms or filters</p>
         </div>
       )}

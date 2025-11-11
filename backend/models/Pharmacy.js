@@ -24,6 +24,17 @@ const pharmacySchema = new mongoose.Schema({
       lng: Number
     }
   },
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      default: 'Point'
+    },
+    coordinates: {
+      type: [Number],
+      default: [0, 0]
+    }
+  },
   contact: {
     phone: String,
     email: String
@@ -58,6 +69,11 @@ const pharmacySchema = new mongoose.Schema({
     type: String,
     enum: ['draft', 'pending_approval', 'approved', 'rejected'],
     default: 'draft'
+  },
+  // Whether the pharmacist has set the physical location for this pharmacy
+  locationSet: {
+    type: Boolean,
+    default: false
   },
   rejectionReason: String,
   approvedBy: {

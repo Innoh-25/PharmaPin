@@ -2107,3 +2107,114 @@
   gap: 0.5rem;
   font-weight: 500;
 }
+
+/* Location Setup Modal Styles */
+.location-setup-modal {
+  max-width: 500px;
+}
+
+.location-loading,
+.location-error,
+.location-success {
+  text-align: center;
+  padding: 20px;
+}
+
+.location-hint {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 10px;
+}
+
+.location-details {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px 0;
+  text-align: left;
+}
+
+.address-section {
+  margin-top: 15px;
+}
+
+.address-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.location-confirm {
+  font-weight: bold;
+  margin-top: 15px;
+}
+
+/* Location Status Banner */
+.location-status-banner {
+  padding: 12px 20px;
+  margin: 15px 0;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.location-status-banner.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* Patient Search Styles */
+.location-status {
+  margin: 10px 0;
+}
+
+.location-badge {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.9em;
+}
+
+.location-badge.warning {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.pharmacy-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 10px 0;
+}
+
+.pharmacy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.distance-badge {
+  background: #4caf50;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+}
+
+.pharmacy-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.directions-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}

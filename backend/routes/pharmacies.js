@@ -81,11 +81,12 @@ router.get('/', async (req, res) => {
             },
             $maxDistance: parseInt(maxDistance)
           }
-        }
+        },
+        locationSet: true 
       };
     }
 
-    const pharmacies = await Pharmacy.find({ ...query, ...locationQuery })
+    const pharmacies = await Pharmacy.find({ ...query, ...locationQuery, locationSet: true })
       .populate('owner', 'firstName lastName email phone')
       .limit(limit * 1)
       .skip((page - 1) * limit)
