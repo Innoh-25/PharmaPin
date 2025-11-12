@@ -41,6 +41,8 @@ app.use('/api/drugs', drugRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/patients', patientRoutes);
+// Public patient search (drug availability near a location)
+app.use('/api/patient-search', patientSearchRoutes);
 app.use('/api/geocode', geocodeRoutes);
 
 // Health check route

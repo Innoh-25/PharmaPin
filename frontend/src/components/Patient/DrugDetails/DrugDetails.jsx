@@ -26,7 +26,12 @@ const DrugDetails = () => {
   const { drug, pharmacy, price, distance, inStock } = result;
 
   const handleGetDirections = () => {
-    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pharmacy.address)}`;
+    const dest = typeof pharmacy.address === 'string'
+      ? pharmacy.address
+      : pharmacy.address?.address
+        ? `${pharmacy.address.address}${pharmacy.address.city ? ', ' + pharmacy.address.city : ''}`
+        : '';
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}`;
     window.open(mapsUrl, '_blank');
   };
 
@@ -76,14 +81,26 @@ const DrugDetails = () => {
         <div className="pharmacy-section">
           <h2>Available at this Pharmacy</h2>
           <div className="pharmacy-card">
-            <h3>{pharmacy.businessName}</h3>
+            <h3>{pharmacy.name || pharmacy.businessName || 'Pharmacy'}</h3>
             <div className="pharmacy-details">
-              <p>📍 {pharmacy.address}</p>
-              <p>📞 {pharmacy.phone}</p>
-              <p>📧 {pharmacy.email}</p>
-              <p>🕒 {pharmacy.operatingHours}</p>
+              <p>📍 {
+                typeof pharmacy.address === 'string'
+                  ? pharmacy.address
+                  : pharmacy.address?.address
+                    ? `${pharmacy.address.address}${pharmacy.address.city ? ', ' + pharmacy.address.city : ''}`
+                    : 'Address not provided'
+              }</p>
+              <p>📞 {pharmacy.phone || pharmacy.contact?.phone || 'N/A'}</p>
+              <p>📧 {pharmacy.email || pharmacy.contact?.email || 'N/A'}</p>
+              <p>🕒 {
+                typeof pharmacy.operatingHours === 'string'
+                  ? pharmacy.operatingHours
+                  : pharmacy.operatingHours
+                    ? `${pharmacy.operatingHours.open || ''}${pharmacy.operatingHours.open && pharmacy.operatingHours.closing ? ' - ' : ''}${pharmacy.operatingHours.closing || ''}`
+                    : 'Hours not available'
+              }</p>
               <p>🚗 {distance} km away</p>
-              <div className="pharmacy-rating">⭐ {pharmacy.rating} Rating</div>
+              <div className="pharmacy-rating">⭐ {pharmacy.rating ?? 'N/A'} Rating</div>
             </div>
           </div>
         </div>

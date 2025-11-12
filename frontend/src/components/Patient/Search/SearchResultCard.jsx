@@ -19,12 +19,12 @@ const SearchResultCard = ({ result, onSelect }) => {
 
       <div className="pharmacy-info-section">
         <div className="pharmacy-header">
-          <h4 className="pharmacy-name">{pharmacy.businessName}</h4>
+          <h4 className="pharmacy-name">{pharmacy.name}</h4>
           <span className="distance">{distance} km away</span>
         </div>
         
         <div className="pharmacy-details">
-          <p className="pharmacy-address">{pharmacy.address}</p>
+          <p className="pharmacy-address">{pharmacy.address?.address}</p>
           <p className="pharmacy-contact">{pharmacy.phone}</p>
         </div>
       </div>

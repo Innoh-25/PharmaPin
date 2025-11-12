@@ -55,17 +55,17 @@ router.post('/search', async (req, res) => {
 
     // Get inventory for matching drugs in nearby pharmacies
     const inventoryItems = await Inventory.find({
-      drugId: { $in: drugs.map(d => d._id) },
-      pharmacyId: { $in: pharmacies.map(p => p._id) },
-      ...(filters?.inStock && { quantity: { $gt: 0 } })
+      drug: { $in: drugs.map(d => d._id) },
+      pharmacy: { $in: pharmacies.map(p => p._id) },
+      ...(filters?.inStock && { isAvailable: true })
     })
-    .populate('drugId')
-    .populate('pharmacyId');
+    .populate('drug')
+    .populate('pharmacy');
 
     // Format results
     const results = inventoryItems.map(item => {
-      const pharmacy = item.pharmacyId;
-      const drug = item.drugId;
+  const pharmacy = item.pharmacy;
+  const drug = item.drug;
       
       // Calculate distance (simplified - in production use proper haversine)
       let distance = 'N/A';
@@ -89,17 +89,18 @@ router.post('/search', async (req, res) => {
         },
         pharmacy: {
           _id: pharmacy._id,
-          businessName: pharmacy.businessName,
+          name: pharmacy.name,
           address: pharmacy.address,
-          phone: pharmacy.phone,
-          email: pharmacy.email,
+          phone: pharmacy.contact?.phone || null,
+          email: pharmacy.contact?.email || null,
           operatingHours: pharmacy.operatingHours,
-          rating: pharmacy.rating
+          rating: pharmacy.rating || null
         },
         price: item.price,
         distance: distance,
-        inStock: item.quantity > 0,
-        quantity: item.quantity
+        inStock: item.isAvailable,
+        // quantity field not present in schema; include null for compatibility
+        quantity: item.quantity || null
       };
     });
 

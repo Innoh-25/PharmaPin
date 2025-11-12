@@ -41,7 +41,8 @@ const DrugSearch = () => {
 
       // Try API call first, fallback to mock data if it fails
       try {
-        const response = await axios.post('http://localhost:5000/api/patients/search', {
+        // Use the public patient-search endpoint (does not require auth)
+        const response = await axios.post('http://localhost:5000/api/patient-search/search', {
           searchTerm: searchTerm.trim(),
           filters,
           userLocation
@@ -51,93 +52,21 @@ const DrugSearch = () => {
           setResults(response.data.data);
         } else {
           setError('Search failed. Please try again.');
-          setResults(getMockResults());
+          setResults([]); 
         }
       } catch (apiError) {
         console.warn('API call failed, using mock data');
-        setResults(getMockResults());
+        setResults([]);
       }
 
     } catch (err) {
       console.error('Search error:', err);
       setError('Failed to search for medications. Using demo data.');
-      setResults(getMockResults());
+      setResults([]);
     } finally {
       setLoading(false);
     }
   };
-
-  const getMockResults = () => [
-    {
-      drug: {
-        _id: '1',
-        name: 'Paracetamol 500mg',
-        description: 'Pain reliever and fever reducer',
-        category: 'Pain Relief',
-        manufacturer: 'Pharma Ltd',
-        prescriptionRequired: false
-      },
-      pharmacy: {
-        _id: '1',
-        businessName: 'City Pharmacy',
-        address: '123 Main Street, Nairobi',
-        phone: '+254700111222',
-        email: 'city@pharmacy.com',
-        operatingHours: 'Mon-Sun: 8:00 AM - 10:00 PM',
-        rating: 4.5
-      },
-      price: 50,
-      distance: '0.8',
-      inStock: true,
-      quantity: 100
-    },
-    {
-      drug: {
-        _id: '2',
-        name: 'Amoxicillin 250mg',
-        description: 'Antibiotic for bacterial infections',
-        category: 'Antibiotics',
-        manufacturer: 'MediCorp',
-        prescriptionRequired: true
-      },
-      pharmacy: {
-        _id: '2',
-        businessName: 'MediQuick Pharmacy',
-        address: '456 Westlands, Nairobi',
-        phone: '+254700333444',
-        email: 'info@mediquick.com',
-        operatingHours: '24/7',
-        rating: 4.2
-      },
-      price: 120,
-      distance: '1.2',
-      inStock: true,
-      quantity: 50
-    },
-    {
-      drug: {
-        _id: '3',
-        name: 'Vitamin C 1000mg',
-        description: 'Immune system support and antioxidant',
-        category: 'Vitamins',
-        manufacturer: 'HealthPlus',
-        prescriptionRequired: false
-      },
-      pharmacy: {
-        _id: '3',
-        businessName: 'Wellness Pharmacy',
-        address: '789 Thika Road, Nairobi',
-        phone: '+254700555666',
-        email: 'wellness@pharmacy.com',
-        operatingHours: 'Mon-Fri: 7:00 AM - 9:00 PM',
-        rating: 4.7
-      },
-      price: 25,
-      distance: '2.5',
-      inStock: true,
-      quantity: 200
-    }
-  ];
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -256,11 +185,23 @@ const DrugSearch = () => {
               </div>
 
               <div className="pharmacy-info">
-                <h4>{result.pharmacy.businessName}</h4>
-                <p className="pharmacy-address">📍 {result.pharmacy.address}</p>
-                <p className="pharmacy-distance">🚗 {result.distance} km away</p>
-                <p className="pharmacy-hours">🕒 {result.pharmacy.operatingHours}</p>
-                <div className="pharmacy-rating">⭐ {result.pharmacy.rating}</div>
+                <h4>{result.pharmacy.name || result.pharmacy.businessName || 'Pharmacy'}</h4>
+                <p className="pharmacy-address">📍 {
+                  typeof result.pharmacy.address === 'string'
+                    ? result.pharmacy.address
+                    : result.pharmacy.address?.address
+                      ? `${result.pharmacy.address.address}${result.pharmacy.address.city ? ', ' + result.pharmacy.address.city : ''}`
+                      : ''
+                }</p>
+                <p className="pharmacy-distance">🚗 {result.distance ?? result.pharmacy.distance} km away</p>
+                <p className="pharmacy-hours">🕒 {
+                  typeof result.pharmacy.operatingHours === 'string'
+                    ? result.pharmacy.operatingHours
+                    : result.pharmacy.operatingHours
+                      ? `${result.pharmacy.operatingHours.open || ''} - ${result.pharmacy.operatingHours.close || ''}`
+                      : ''
+                }</p>
+                <div className="pharmacy-rating">⭐ {result.pharmacy.rating ?? 'N/A'}</div>
               </div>
 
               <div className="pricing-info">
