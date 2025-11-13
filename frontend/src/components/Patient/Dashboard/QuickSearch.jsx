@@ -8,7 +8,7 @@ const QuickSearch = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+      navigate(`/patient/search?q=${encodeURIComponent(searchTerm)}`);
     }
   };
 

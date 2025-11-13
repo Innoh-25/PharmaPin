@@ -33,7 +33,8 @@ import PatientProfile from './components/Patient/Profile';
 import HelpSupport from './components/Patient/HelpSupport';
 import OrderHistory from './components/Patient/Orders/OrderHistory';
 import OrderDetails from './components/Patient/Orders/OrderDetails';
-import DrugDetails from './components/Patient/DrugDetails/DrugDetails'
+import DrugDetails from './components/Patient/DrugDetails/DrugDetails';
+import NotificationsList from './components/Patient/Notifications/NotificationsList'
 
 const ProtectedAdminRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
@@ -128,6 +129,7 @@ function App() {
               <Route path="profile" element={<PatientProfile />} />
               <Route path="help" element={<HelpSupport />} />
               <Route path="drug-details" element={<DrugDetails />} />
+              <Route path="notifications" element={<NotificationsList />} />
             </Route>
 
             {/* Standalone patient routes for direct access */}

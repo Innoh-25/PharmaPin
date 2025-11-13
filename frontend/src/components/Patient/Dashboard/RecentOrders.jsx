@@ -1,55 +1,60 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 
 const RecentOrders = () => {
-  // Mock data - replace with actual API call
-  const recentOrders = [
-    { id: 1, drug: 'Paracetamol', status: 'Delivered', date: '2024-01-15', pharmacy: 'City Pharmacy' },
-    { id: 2, drug: 'Amoxicillin', status: 'In Progress', date: '2024-01-14', pharmacy: 'MediQuick' }
-  ];
+  const { patientOrders } = useAuth();
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'Delivered': return 'var(--success-color)';
-      case 'In Progress': return 'var(--primary-color)';
-      default: return 'var(--text-light)';
-    }
+    const colors = {
+      pending: '#f59e0b',
+      confirmed: '#3b82f6',
+      processing: '#8b5cf6',
+      ready_for_pickup: '#10b981',
+      delivered: '#059669',
+      cancelled: '#ef4444'
+    };
+    return colors[status] || '#6b7280';
   };
 
+  if (!patientOrders || patientOrders.length === 0) {
+    return (
+      <div className="recent-orders empty">
+        <p>No recent orders</p>
+        <Link to="/patient/search" className="btn btn-primary btn-sm">
+          Place Your First Order
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      {recentOrders.length === 0 ? (
-        <div className="feature-card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <p style={{ color: 'var(--text-light)' }}>No recent orders</p>
-          <Link to="/search" className="btn btn-primary" style={{ marginTop: '1rem' }}>
-            Start Shopping
+    <div className="recent-orders">
+      {patientOrders.slice(0, 3).map((order) => (
+        <div key={order._id} className="order-preview">
+          <div className="order-preview-header">
+            <span className="order-number">#{order.orderNumber}</span>
+            <span 
+              className="order-status"
+              style={{ color: getStatusColor(order.status) }}
+            >
+              {order.status.replace(/_/g, ' ')}
+            </span>
+          </div>
+          <div className="order-preview-details">
+            <span className="order-total">KSh {order.finalAmount?.toFixed(2)}</span>
+            <span className="order-date">
+              {new Date(order.createdAt).toLocaleDateString()}
+            </span>
+          </div>
+        </div>
+      ))}
+      {patientOrders.length > 3 && (
+        <div className="view-all-orders">
+          <Link to="/patient/orders" className="view-all-link">
+            View all orders ({patientOrders.length})
           </Link>
         </div>
-      ) : (
-        recentOrders.map(order => (
-          <div key={order.id} className="feature-card" style={{ marginBottom: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
-              <h4 style={{ margin: 0 }}>{order.drug}</h4>
-              <span style={{ 
-                color: getStatusColor(order.status),
-                fontWeight: 'bold',
-                fontSize: '0.8rem'
-              }}>
-                {order.status}
-              </span>
-            </div>
-            <p style={{ color: 'var(--text-light)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-              {order.pharmacy} • {new Date(order.date).toLocaleDateString()}
-            </p>
-            <Link 
-              to={`/patient/orders/${order.id}`}
-              className="nav-link"
-              style={{ fontSize: '0.8rem' }}
-            >
-              View Details
-            </Link>
-          </div>
-        ))
       )}
     </div>
   );
