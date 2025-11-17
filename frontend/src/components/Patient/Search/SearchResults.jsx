@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import SearchResultCard from './SearchResultCard';
 import LoadingSpinner from '../../Shared/UI/LoadingSpinner';
 import axios from 'axios';
+import { getLatLngFromPharmacy, hasValidCoordinates } from '../../../utils/geo';
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
@@ -86,9 +87,13 @@ const SearchResults = () => {
   };
 
   const getDirections = (pharmacy) => {
-    if (pharmacy.location && pharmacy.location.coordinates) {
-      const [lng, lat] = pharmacy.location.coordinates;
+    const coords = getLatLngFromPharmacy(pharmacy);
+    if (coords) {
+      const { lat, lng } = coords;
       const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+      window.open(url, '_blank');
+    } else if (pharmacy.address && pharmacy.address.address) {
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pharmacy.address.address)}`;
       window.open(url, '_blank');
     } else {
       alert('Directions not available for this pharmacy');

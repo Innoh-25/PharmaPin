@@ -135,7 +135,7 @@ router.put('/:id', auth, async (req, res) => {
     }
 
     const allowedUpdates = [
-      'name', 'phone', 'address', 'operatingHours', 'is24Hours',
+      'name', 'phone', 'contact', 'address', 'operatingHours', 'is24Hours',
       'services', 'description', 'images', 'location'
     ];
     
@@ -143,7 +143,8 @@ router.put('/:id', auth, async (req, res) => {
     const isValidOperation = updates.every(update => allowedUpdates.includes(update));
 
     if (!isValidOperation) {
-      return res.status(400).json({ message: 'Invalid updates' });
+      const invalidFields = updates.filter(u => !allowedUpdates.includes(u));
+      return res.status(400).json({ message: 'Invalid updates', invalidFields });
     }
 
     updates.forEach(update => pharmacy[update] = req.body[update]);

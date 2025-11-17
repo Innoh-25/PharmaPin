@@ -167,7 +167,11 @@ const PharmacistDashboard = () => {
                   <span className="status-badge">✅ Approved</span>
                 </div>
               </div>
-              <button className="edit-profile-btn">
+              <button 
+                className="edit-profile-btn"
+                onClick={() => navigate('/pharmacist/profile')} 
+              
+              >
                 Edit Profile
               </button>
             </div>

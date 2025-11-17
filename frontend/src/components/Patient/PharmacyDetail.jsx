@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import LoadingSpinner from '../../components/Shared/UI/LoadingSpinner';
+import { getLatLngFromPharmacy } from '../../utils/geo';
 
 const PharmacyDetail = () => {
   const { id } = useParams();
@@ -42,9 +43,9 @@ const PharmacyDetail = () => {
   };
 
   const getDirections = () => {
-    if (pharmacy?.location?.coordinates) {
-      const [lng, lat] = pharmacy.location.coordinates;
-      
+    const coords = getLatLngFromPharmacy(pharmacy);
+    if (coords) {
+      const { lat, lng } = coords;
       // If we have user location, use it as origin
       if (userLocation) {
         const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${lat},${lng}`;
@@ -54,6 +55,9 @@ const PharmacyDetail = () => {
         const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
         window.open(url, '_blank');
       }
+    } else if (pharmacy?.address?.address) {
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pharmacy.address.address)}`;
+      window.open(url, '_blank');
     } else {
       alert('Directions not available for this pharmacy');
     }

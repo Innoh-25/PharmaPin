@@ -20,6 +20,7 @@ import AdminDashboard from './components/Admin/AdminDashboard';
 import RejectedPharmacy from './components/Pharmacist/RejectedPharmacy';
 import DrugClassManager from './components/Pharmacist/DrugClassManager';
 import InventoryDrugs from './components/Pharmacist/InventoryDrugs';
+import Profile from './components/Pharmacist/Profile'
 
 //Patient
 import PatientLayout from './components/Shared/Layout/PatientLayout';
@@ -108,6 +109,7 @@ function App() {
               <Route path="orders" element={<ViewOrders />} />
               <Route path="manage-drugs" element={<DrugClassManager />} />
               <Route path="inventory-drugs" element={<InventoryDrugs />} />
+              <Route path="profile" element={<Profile />} />
             </Route>
 
             {/* Admin routes */}
