@@ -43,23 +43,26 @@ const PharmacyDetail = () => {
   };
 
   const getDirections = () => {
-    const coords = getLatLngFromPharmacy(pharmacy);
-    if (coords) {
-      const { lat, lng } = coords;
-      // If we have user location, use it as origin
-      if (userLocation) {
-        const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${lat},${lng}`;
-        window.open(url, '_blank');
+     const coords = getLatLngFromPharmacy(pharmacy);
+  
+  if (coords && coords.lat !== 0 && coords.lng !== 0) {
+    const { lat, lng } = coords;
+    
+    // Open Google Maps with directions
+    if (userLocation) {
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${lat},${lng}`;
+      window.open(url, '_blank');
       } else {
-        // Just show destination
         const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
         window.open(url, '_blank');
       }
-    } else if (pharmacy?.address?.address) {
-      const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pharmacy.address.address)}`;
+    } else if (pharmacy?.address?.address && pharmacy?.address?.city) {
+      // Fallback to address string
+      const addressString = `${pharmacy.address.address}, ${pharmacy.address.city}`;
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(addressString)}`;
       window.open(url, '_blank');
     } else {
-      alert('Directions not available for this pharmacy');
+      alert('⚠️ This pharmacy has not set their location yet. Please contact them directly.');
     }
   };
 

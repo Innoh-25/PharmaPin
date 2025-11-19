@@ -93,4 +93,18 @@ const pharmacySchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Create 2dsphere index for location queries
+pharmacySchema.index({ location: '2dsphere' });
+
+// Ensure location is always returned
+pharmacySchema.set('toJSON', {
+  transform: function(doc, ret) {
+    // Ensure location exists in JSON output
+    if (!ret.location) {
+      ret.location = { type: 'Point', coordinates: [0, 0] };
+    }
+    return ret;
+  }
+});
+
 module.exports = mongoose.model('Pharmacy', pharmacySchema);

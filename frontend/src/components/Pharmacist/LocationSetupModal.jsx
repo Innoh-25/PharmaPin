@@ -15,38 +15,37 @@ const LocationSetupModal = ({ isOpen, onClose, onLocationSet }) => {
   }, [isOpen]);
 
   const getCurrentLocation = () => {
-    setLoading(true);
-    setError('');
+  setLoading(true);
+  setError('');
 
-    if (!navigator.geolocation) {
-      setError('Geolocation is not supported by your browser');
+  if (!navigator.geolocation) {
+    setError('Geolocation is not supported by your browser');
+    setLoading(false);
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const { latitude, longitude } = position.coords;
+      setLocation({ latitude, longitude });
+      
+      // Set a default address that pharmacist can edit
+      setAddress(`Pharmacy at coordinates: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+      
       setLoading(false);
-      return;
+    },
+    (error) => {
+      console.error('Geolocation error:', error);
+      setError('Unable to get your current location. Please ensure location services are enabled and you have granted permission.');
+      setLoading(false);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
     }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        setLocation({ latitude, longitude });
-        
-        // SIMPLE FIX: Just use coordinates, no API call needed
-        setAddress(`Pharmacy Location (${latitude.toFixed(6)}, ${longitude.toFixed(6)})`);
-        
-        setLoading(false);
-      },
-      (error) => {
-        console.error('Geolocation error:', error);
-        setError('Unable to get your current location. Please ensure location services are enabled.');
-        setLoading(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 60000
-      }
-    );
-  };
-
+  );
+};
   const handleSetLocation = async () => {
     if (!location) {
       setError('Location not available');

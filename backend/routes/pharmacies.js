@@ -109,14 +109,25 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const pharmacy = await Pharmacy.findById(req.params.id)
+      .select('+location') // Explicitly include location
       .populate('owner', 'firstName lastName email phone');
 
     if (!pharmacy || !pharmacy.isActive) {
       return res.status(404).json({ message: 'Pharmacy not found' });
     }
 
-    res.json(pharmacy);
+    // Log to verify
+    console.log('📍 Pharmacy:', pharmacy.name);
+    console.log('   Location object:', JSON.stringify(pharmacy.location));
+    
+    // Convert to plain object to ensure all nested fields are included
+    const pharmacyObj = pharmacy.toObject();
+    
+    console.log('   Sending location:', JSON.stringify(pharmacyObj.location));
+
+    res.json(pharmacyObj);
   } catch (error) {
+    console.error('Get pharmacy error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

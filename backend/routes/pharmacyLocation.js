@@ -8,42 +8,48 @@ const router = express.Router();
 router.post('/set-location', auth, async (req, res) => {
   try {
     if (req.user.role !== 'pharmacist') {
-      return res.status(403).json({ message: 'Access denied' });
+      return res.status(403).json({ success: false, message: 'Access denied' });
     }
 
     const { latitude, longitude, address } = req.body;
 
     if (!latitude || !longitude) {
-      return res.status(400).json({ message: 'Latitude and longitude are required' });
+      return res.status(400).json({ success: false, message: 'Latitude and longitude are required' });
     }
 
-    // Find pharmacist's pharmacy
+    // Find pharmacist's pharmacy (allow setting location even before approval)
     const pharmacy = await Pharmacy.findOne({ 
-      owner: req.user.id,
-      status: 'approved'
+      owner: req.user.id
     });
 
     if (!pharmacy) {
       return res.status(404).json({ 
-        message: 'Pharmacy not found or not approved' 
+        success: false,
+        message: 'No pharmacy found for this account. Please create a pharmacy first.' 
       });
     }
 
-    // Update location
+    // Update location in MongoDB GeoJSON format
     pharmacy.location = {
       type: 'Point',
-      coordinates: [longitude, latitude] // MongoDB uses [lng, lat]
+      coordinates: [parseFloat(longitude), parseFloat(latitude)] // [lng, lat]
     };
     
-    // Also update address coordinates if provided
+    // Initialize address object if it doesn't exist
+    if (!pharmacy.address) {
+      pharmacy.address = {};
+    }
+    
+    // Update address coordinates in lat/lng format
+    pharmacy.address.coordinates = {
+      lat: parseFloat(latitude),
+      lng: parseFloat(longitude)
+    };
+    
+    // Update address text if provided
     if (address) {
       pharmacy.address.address = address;
     }
-    
-    pharmacy.address.coordinates = {
-      lat: latitude,
-      lng: longitude
-    };
     
     pharmacy.locationSet = true;
 
@@ -56,7 +62,9 @@ router.post('/set-location', auth, async (req, res) => {
     });
 
   } catch (error) {
+    console.error('Set location error:', error);
     res.status(500).json({ 
+      success: false,
       message: 'Failed to set location', 
       error: error.message 
     });
@@ -67,16 +75,17 @@ router.post('/set-location', auth, async (req, res) => {
 router.get('/location-status', auth, async (req, res) => {
   try {
     if (req.user.role !== 'pharmacist') {
-      return res.status(403).json({ message: 'Access denied' });
+      return res.status(403).json({ success: false, message: 'Access denied' });
     }
 
     const pharmacy = await Pharmacy.findOne({ owner: req.user.id });
     
     if (!pharmacy) {
-      return res.status(404).json({ message: 'Pharmacy not found' });
+      return res.status(404).json({ success: false, message: 'Pharmacy not found' });
     }
 
     res.json({
+      success: true,
       locationSet: pharmacy.locationSet,
       coordinates: pharmacy.location.coordinates,
       address: pharmacy.address
@@ -84,6 +93,7 @@ router.get('/location-status', auth, async (req, res) => {
 
   } catch (error) {
     res.status(500).json({ 
+      success: false,
       message: 'Failed to get location status', 
       error: error.message 
     });
