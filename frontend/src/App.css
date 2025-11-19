@@ -144,7 +144,7 @@ main {
 
 .home p {
   font-size: 1.2rem;
-  color: var(--text-light);
+  color: rgba(255, 255, 255, 0.45);
   margin-bottom: 3rem;
   max-width: 600px;
   margin-left: auto;
@@ -543,4 +543,51 @@ main {
   margin-bottom: 1.5rem;
   border-left: 4px solid #28a745;
   font-weight: 500;
+}
+
+
+/* Home Page Auth Buttons */
+.auth-buttons {
+  margin: 2rem 0 3rem 0;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.auth-btn {
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  text-decoration: none;
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-align: center;
+  min-width: 140px;
+}
+
+.auth-btn-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  border: none;
+}
+
+.auth-btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-dark), var(--secondary-color));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+  color: white;
+}
+
+.auth-btn-secondary {
+  background: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.auth-btn-secondary:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
 }

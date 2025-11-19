@@ -21,7 +21,6 @@ export const AuthProvider = ({ children }) => {
 
   const [patientProfile, setPatientProfile] = useState(null);
   const [patientAddresses, setPatientAddresses] = useState([]);
-  const [patientOrders, setPatientOrders] = useState([]);
 
   // Set auth token for all requests
   useEffect(() => {
@@ -132,7 +131,6 @@ export const AuthProvider = ({ children }) => {
 
     setPatientProfile(null);
     setPatientAddresses([]);
-    setPatientOrders([]);
     localStorage.removeItem('token');
   };
 
@@ -163,13 +161,7 @@ export const AuthProvider = ({ children }) => {
         console.log('Patient addresses endpoint not ready yet');
       }
 
-      try {
-        // Load recent orders
-        const ordersResponse = await axios.get(`${API_BASE_URL}/patients/orders?limit=5`);
-        setPatientOrders(ordersResponse.data.data);
-      } catch (ordersError) {
-        console.log('Patient orders endpoint not ready yet');
-      }
+      // Order loading removed while ordering feature is disabled
 
     } catch (error) {
       console.log('Patient data loading in progress');
@@ -246,41 +238,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Order management
-  const getPatientOrders = async (filters = {}) => {
-    try {
-      const queryParams = new URLSearchParams(filters).toString();
-      const response = await axios.get(`${API_BASE_URL}/patients/orders?${queryParams}`);
-      setPatientOrders(response.data.data);
-      return { success: true, data: response.data.data };
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch orders');
-    }
-  };
-
-  const getPatientOrderDetails = async (orderId) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/patients/orders/${orderId}`);
-      return { success: true, data: response.data.data };
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch order details');
-    }
-  };
-
-  const cancelPatientOrder = async (orderId, reason) => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/patients/orders/${orderId}/cancel`, { reason });
-      // Update local orders state
-      setPatientOrders(prev => 
-        prev.map(order => 
-          order._id === orderId ? response.data.data : order
-        )
-      );
-      return { success: true, data: response.data.data };
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to cancel order');
-    }
-  };
+  // Order management removed while ordering feature is disabled
 
   // Favorite pharmacies
   const getFavoritePharmacies = async () => {
@@ -313,15 +271,11 @@ export const AuthProvider = ({ children }) => {
     // Patient-specific values and methods
     patientProfile,
     patientAddresses,
-    patientOrders,
     updatePatientProfile,
     addPatientAddress,
     updatePatientAddress,
     deletePatientAddress,
     setDefaultAddress,
-    getPatientOrders,
-    getPatientOrderDetails,
-    cancelPatientOrder,
     getFavoritePharmacies,
     toggleFavoritePharmacy,
     loadPatientData 

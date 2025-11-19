@@ -10,7 +10,6 @@ const userRoutes = require('./routes/users');
 const pharmacyRoutes = require('./routes/pharmacies');
 const drugRoutes = require('./routes/drugs');
 const inventoryRoutes = require('./routes/inventory');
-const orderRoutes = require('./routes/orders');
 const pharmacyOnboardingRoutes = require('./routes/pharmacyOnboarding');
 const adminAuthRoutes = require('./routes/adminAuth');
 const adminRoutes = require('./routes/admin');
@@ -39,7 +38,6 @@ app.use('/api/pharmacy-onboarding', pharmacyOnboardingRoutes);
 app.use('/api/pharmacy-location', pharmacyLocationRoutes);
 app.use('/api/drugs', drugRoutes);
 app.use('/api/inventory', inventoryRoutes);
-app.use('/api/orders', orderRoutes);
 app.use('/api/patients', patientRoutes);
 // Public patient search (drug availability near a location)
 app.use('/api/patient-search', patientSearchRoutes);
@@ -64,8 +62,7 @@ app.get('/', (req, res) => {
       users: '/api/users', 
       pharmacies: '/api/pharmacies',
       drugs: '/api/drugs',
-      inventory: '/api/inventory',
-      orders: '/api/orders'
+      inventory: '/api/inventory'
     }
   });
 });

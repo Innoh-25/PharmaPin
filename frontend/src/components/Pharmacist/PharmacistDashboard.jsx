@@ -16,7 +16,7 @@ const PharmacistDashboard = () => {
     lowStockItems: 0,
     totalRevenue: 0
   });
-  const [recentOrders, setRecentOrders] = useState([]);
+  // Orders feature temporarily disabled: recentOrders removed
   const [loading, setLoading] = useState(true);
   const [showAddDrugModal, setShowAddDrugModal] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
@@ -56,15 +56,14 @@ const PharmacistDashboard = () => {
         // calls fetchDashboardData which would read the old state and reopen the modal.
       }
 
-      const ordersResponse = await axios.get('http://localhost:5000/api/orders/pharmacy-orders?limit=5');
-      setRecentOrders(ordersResponse.data.orders || []);
+  // Orders endpoint removed; skipping orders fetch
 
       const inventoryResponse = await axios.get(`http://localhost:5000/api/inventory/pharmacy/${pharmacyResponse.data._id}?inStock=true`);
       const lowStockItems = inventoryResponse.data.inventory.filter(item => item.quantity <= item.minStockLevel).length;
 
       setStats({
-        totalOrders: ordersResponse.data.total || 0,
-        pendingOrders: ordersResponse.data.orders?.filter(order => order.status === 'pending').length || 0,
+        totalOrders: 0,
+        pendingOrders: 0,
         lowStockItems,
         totalRevenue: 0
       });
@@ -102,9 +101,7 @@ const PharmacistDashboard = () => {
       case 'manage-inventory':
         navigate('/pharmacist/inventory');
         break;
-      case 'view-orders':
-        navigate('/pharmacist/orders');
-        break;
+      // 'view-orders' action removed while ordering is disabled
       case 'reports':
         navigate('/pharmacist/reports');
         break;
@@ -238,50 +235,14 @@ const PharmacistDashboard = () => {
         </div>
 
         <div className="dashboard-content">
-          {/* Recent Orders */}
+          {/* Orders feature currently disabled */}
           <div className="dashboard-section">
             <div className="section-header">
-              <h3>Recent Orders</h3>
+              <h3>Orders (disabled)</h3>
             </div>
             <div className="section-content">
-              {recentOrders.length > 0 ? (
-                <div className="orders-list">
-                  {recentOrders.map((order) => (
-                    <div key={order._id} className="order-item">
-                      <div className="order-info">
-                        <h4>Order #{order.orderNumber}</h4>
-                        <p className="order-meta">
-                          {order.items?.length} items • {order.patient?.firstName} {order.patient?.lastName}
-                        </p>
-                      </div>
-                      <div className="order-status">
-                        <span className={`status-badge ${
-                          order.status === 'pending' ? 'status-pending' :
-                          order.status === 'confirmed' ? 'status-confirmed' :
-                          order.status === 'ready_for_pickup' ? 'status-ready' :
-                          'status-default'
-                        }`}>
-                          {order.status.replace('_', ' ')}
-                        </span>
-                        <p className="order-amount">
-                          KSh {order.finalAmount?.toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="empty-state">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
-                  <p>No orders yet</p>
-                </div>
-              )}
-              <div className="view-all-btn">
-                <button className="view-all-link">
-                  View All Orders →
-                </button>
+              <div className="empty-state">
+                <p>Order management has been temporarily disabled.</p>
               </div>
             </div>
           </div>
@@ -317,17 +278,7 @@ const PharmacistDashboard = () => {
                   <p className="action-label">Manage Inventory</p>
                 </button>
 
-                <button 
-                  className="action-card"
-                  onClick={() => handleQuickAction('view-orders')}
-                >
-                  <div className="action-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
-                  </div>
-                  <p className="action-label">View Orders</p>
-                </button>
+                {/* Orders action removed while feature is disabled */}
 
                 <button 
                   className="action-card"

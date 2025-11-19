@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const Patient = require('../models/Patient');
-const Order = require('../models/Order');
+// Order model removed while ordering feature is disabled
 const Pharmacy = require('../models/Pharmacy');
 const Drug = require('../models/Drug');
 const Inventory = require('../models/Inventory');
@@ -286,125 +286,7 @@ router.patch('/addresses/:addressId/set-default', auth, async (req, res) => {
   }
 });
 
-// @route   GET /api/patients/orders
-// @desc    Get patient orders
-// @access  Private
-router.get('/orders', auth, async (req, res) => {
-  try {
-    const { limit = 10, page = 1, status } = req.query;
-    const skip = (page - 1) * limit;
-
-    let query = { patient: req.user.id };
-    if (status) {
-      query.status = status;
-    }
-
-    const orders = await Order.find(query)
-      .populate('pharmacy', 'businessName address phone')
-      .populate('items.drug', 'name description price')
-      .sort({ createdAt: -1 })
-      .limit(parseInt(limit))
-      .skip(skip);
-
-    const total = await Order.countDocuments(query);
-
-    res.json({
-      success: true,
-      data: orders,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / limit)
-      }
-    });
-  } catch (error) {
-    console.error('Get orders error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error'
-    });
-  }
-});
-
-// @route   GET /api/patients/orders/:orderId
-// @desc    Get patient order details
-// @access  Private
-router.get('/orders/:orderId', auth, async (req, res) => {
-  try {
-    const order = await Order.findOne({
-      _id: req.params.orderId,
-      patient: req.user.id
-    })
-    .populate('pharmacy', 'businessName address phone email')
-    .populate('items.drug', 'name description manufacturer price')
-    .populate('items.inventory');
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: order
-    });
-  } catch (error) {
-    console.error('Get order details error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error'
-    });
-  }
-});
-
-// @route   POST /api/patients/orders/:orderId/cancel
-// @desc    Cancel patient order
-// @access  Private
-router.post('/orders/:orderId/cancel', auth, async (req, res) => {
-  try {
-    const { reason } = req.body;
-
-    const order = await Order.findOne({
-      _id: req.params.orderId,
-      patient: req.user.id
-    });
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found'
-      });
-    }
-
-    // Check if order can be cancelled
-    if (!['pending', 'confirmed'].includes(order.status)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Order cannot be cancelled at this stage'
-      });
-    }
-
-    order.status = 'cancelled';
-    order.cancellationReason = reason;
-    order.cancelledAt = new Date();
-
-    await order.save();
-
-    res.json({
-      success: true,
-      data: order
-    });
-  } catch (error) {
-    console.error('Cancel order error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error'
-    });
-  }
-});
+// Order-related patient endpoints removed while ordering feature is disabled
 
 // @route   GET /api/patients/favorites/pharmacies
 // @desc    Get favorite pharmacies

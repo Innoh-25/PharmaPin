@@ -3,14 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import QuickSearch from './QuickSearch';
-import RecentOrders from './RecentOrders';
+// RecentOrders removed while ordering feature is disabled
 import NearbyPharmacies from './NearbyPharmacies';
 import LocationSelector from './LocationSelector';
 
 const PatientDashboard = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [locationError, setLocationError] = useState('');
-  const { user, patientProfile, patientOrders } = useAuth();
+  const { user, patientProfile } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -118,12 +118,12 @@ const PatientDashboard = () => {
         {/* Recent Orders Section */}
         <div className="dashboard-section">
           <div className="section-header">
-            <h2>📦 Recent Orders</h2>
-            <Link to="/patient/orders" className="view-all-link">
-              View All
-            </Link>
-          </div>
-          <RecentOrders />
+              <h2>📦 Recent Orders</h2>
+              <span className="view-all-link">Disabled</span>
+            </div>
+            <div className="recent-orders empty">
+              <p>Order features are currently disabled.</p>
+            </div>
         </div>
       </div>
 
@@ -186,23 +186,14 @@ const PatientDashboard = () => {
             </div>
           </div>
 
-          <div 
-            className="action-card"
-            onClick={() => navigate('/patient/orders')}
-          >
-            <div className="action-icon">📋</div>
-            <div className="action-content">
-              <h3>Order History</h3>
-              <p>View all past orders</p>
-            </div>
-          </div>
+          {/* Order History action removed while ordering is disabled */}
         </div>
       </div>
 
       {/* Stats Overview */}
       <div className="stats-overview">
         <div className="stat-card">
-          <div className="stat-number">{patientOrders?.length || 0}</div>
+          <div className="stat-number">0</div>
           <div className="stat-label">Total Orders</div>
         </div>
         <div className="stat-card">

@@ -14,7 +14,6 @@ import PharmacyOnboarding from './components/Pharmacist/PharmacyOnboarding';
 import PendingApproval from './components/Pharmacist/PendingApproval';
 import PharmacistDashboard from './components/Pharmacist/PharmacistDashboard';
 import ManageInventory from './components/Pharmacist/ManageInventory';
-import ViewOrders from './components/Pharmacist/ViewOrders';
 import AdminLogin from './components/Admin/AdminLogin';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import RejectedPharmacy from './components/Pharmacist/RejectedPharmacy';
@@ -28,14 +27,11 @@ import PatientDashboard from './components/Patient/Dashboard/PatientDashboard';
 import DrugSearch from './components/Patient/Search/DrugSearch';
 import SearchResults from './components/Patient/Search/SearchResults';
 import PharmacyDetail from './components/Patient/PharmacyDetail';
-import Checkout from './components/Patient/Checkout';
-import OrderTracking from './components/Patient/OrderTracking';
-import PatientProfile from './components/Patient/Profile';
-import HelpSupport from './components/Patient/HelpSupport';
-import OrderHistory from './components/Patient/Orders/OrderHistory';
-import OrderDetails from './components/Patient/Orders/OrderDetails';
+// import ViewOrders from './components/Pharmacist/ViewOrders';
 import DrugDetails from './components/Patient/DrugDetails/DrugDetails';
 import NotificationsList from './components/Patient/Notifications/NotificationsList'
+import PatientProfile from './components/Patient/Profile';
+import HelpSupport from './components/Patient/HelpSupport';
 
 const ProtectedAdminRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
@@ -106,7 +102,7 @@ function App() {
               <Route path="dashboard" element={<PharmacistDashboard />} />
               <Route path="rejected" element={<RejectedPharmacy />} />
               <Route path="inventory" element={<ManageInventory />} />
-              <Route path="orders" element={<ViewOrders />} />
+              {/* Order management removed temporarily */}
               <Route path="manage-drugs" element={<DrugClassManager />} />
               <Route path="inventory-drugs" element={<InventoryDrugs />} />
               <Route path="profile" element={<Profile />} />
@@ -124,10 +120,7 @@ function App() {
               <Route path="search" element={<DrugSearch />} />
               <Route path="search-results" element={<SearchResults />} />
               <Route path="pharmacy/:id" element={<PharmacyDetail />} />
-              <Route path="checkout" element={<Checkout />} />
-              <Route path="orders" element={<OrderHistory />} />
-              <Route path="orders/:id" element={<OrderDetails />} />
-              <Route path="orders/:id/tracking" element={<OrderTracking />} />
+              {/* Patient ordering routes disabled */}
               <Route path="profile" element={<PatientProfile />} />
               <Route path="help" element={<HelpSupport />} />
               <Route path="drug-details" element={<DrugDetails />} />
