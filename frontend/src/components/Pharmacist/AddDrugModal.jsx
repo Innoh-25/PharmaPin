@@ -26,7 +26,7 @@ const AddDrugModal = ({ isOpen, onClose, onDrugAdded }) => {
   const fetchAvailableDrugs = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/drugs/not-in-inventory');
+  const response = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/drugs/not-in-inventory`);
       setAvailableDrugs(response.data.drugs || []);
     } catch (error) {
       console.error('Error fetching available drugs:', error);
@@ -63,7 +63,7 @@ const AddDrugModal = ({ isOpen, onClose, onDrugAdded }) => {
         maxStockLevel: 100
       };
 
-      await axios.post('http://localhost:5000/api/inventory', inventoryData, {
+      await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/inventory`, inventoryData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

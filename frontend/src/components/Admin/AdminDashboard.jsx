@@ -47,10 +47,10 @@ const AdminDashboard = () => {
       console.log('Fetching admin data with token:', token ? 'present' : 'missing');
       
       const requests = [
-        axios.get('http://localhost:5000/api/admin/stats', {
+        axios.get(`${import.meta.env.VITE_API_URL || ''}/api/admin/stats`, {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        axios.get('http://localhost:5000/api/admin/pharmacies/pending', {
+        axios.get(`${import.meta.env.VITE_API_URL || ''}/api/admin/pharmacies/pending`, {
           headers: { Authorization: `Bearer ${token}` }
         })
       ];
@@ -59,21 +59,21 @@ const AdminDashboard = () => {
       if (activeTab === 'users') {
         console.log('📥 Fetching users...');
         requests.push(
-          axios.get('http://localhost:5000/api/admin/users', {
+          axios.get(`${import.meta.env.VITE_API_URL || ''}/api/admin/users`, {
             headers: { Authorization: `Bearer ${token}` }
           })
         );
       } else if (activeTab === 'pharmacies') {
         console.log('📥 Fetching pharmacies...');
         requests.push(
-          axios.get('http://localhost:5000/api/admin/all-pharmacies', {
+          axios.get(`${import.meta.env.VITE_API_URL || ''}/api/admin/all-pharmacies`, {
             headers: { Authorization: `Bearer ${token}` }
           })
         );
       } else if (activeTab === 'dashboard') {
         console.log('📥 Fetching comprehensive stats...');
         requests.push(
-          axios.get('http://localhost:5000/api/admin/comprehensive-stats', {
+          axios.get(`${import.meta.env.VITE_API_URL || ''}/api/admin/comprehensive-stats`, {
             headers: { Authorization: `Bearer ${token}` }
           })
         );
@@ -127,7 +127,7 @@ const AdminDashboard = () => {
   const handleUpdateUser = async (userId, updates) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/admin/users/${userId}`, updates, {
+      await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/admin/users/${userId}`, updates, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -145,7 +145,7 @@ const AdminDashboard = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/admin/users/${userId}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL || ''}/api/admin/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -159,7 +159,7 @@ const AdminDashboard = () => {
   const handleApprovePharmacy = async (pharmacyId) => {
     try {
       const token = localStorage.getItem('token'); // Changed from adminToken
-      await axios.put(`http://localhost:5000/api/admin/pharmacies/${pharmacyId}/approve`, {}, {
+      await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/admin/pharmacies/${pharmacyId}/approve`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -183,7 +183,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `http://localhost:5000/api/admin/pharmacies/${rejectionModal.pharmacy._id}/reject`, 
+        `${import.meta.env.VITE_API_URL || ''}/api/admin/pharmacies/${rejectionModal.pharmacy._id}/reject`, 
         { rejectionReason },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -202,7 +202,7 @@ const AdminDashboard = () => {
     if (reason) {
       try {
         const token = localStorage.getItem('token'); // Changed from adminToken
-        await axios.put(`http://localhost:5000/api/admin/pharmacies/${pharmacyId}/reject`, 
+        await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/admin/pharmacies/${pharmacyId}/reject`, 
           { rejectionReason: reason },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -416,7 +416,7 @@ const AdminDashboard = () => {
                             {pharmacy.certificates.map((cert, index) => (
                               <div key={index} className="certificate-item">
                                 <a 
-                                  href={`http://localhost:5000${cert.fileUrl}`}
+                                  href={`${import.meta.env.VITE_API_URL || ''}${cert.fileUrl}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="certificate-link"
@@ -623,7 +623,7 @@ const AdminDashboard = () => {
                       {selectedPharmacy.certificates.map((cert, index) => (
                         <div key={index} className="certificate-item">
                           <a
-                            href={`http://localhost:5000${cert.fileUrl}`}
+                            href={`${import.meta.env.VITE_API_URL || ''}${cert.fileUrl}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="certificate-link"

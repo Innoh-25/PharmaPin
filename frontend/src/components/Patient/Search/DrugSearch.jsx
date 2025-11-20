@@ -42,7 +42,7 @@ const DrugSearch = () => {
       // Try API call first, fallback to mock data if it fails
       try {
         // Use the public patient-search endpoint (does not require auth)
-        const response = await axios.post('http://localhost:5000/api/patient-search/search', {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/patient-search/search`, {
           searchTerm: searchTerm.trim(),
           filters,
           userLocation

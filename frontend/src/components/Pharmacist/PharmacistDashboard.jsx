@@ -32,12 +32,12 @@ const PharmacistDashboard = () => {
     try {
       setLoading(true);
       
-      const pharmacyResponse = await axios.get('http://localhost:5000/api/pharmacy-onboarding/profile');
-      setPharmacy(pharmacyResponse.data);
+  const pharmacyResponse = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/pharmacy-onboarding/profile`);
+  setPharmacy(pharmacyResponse.data);
 
       // CHECK LOCATION STATUS
       try {
-        const locationResponse = await axios.get('http://localhost:5000/api/pharmacy-location/location-status');
+  const locationResponse = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/pharmacy-location/location-status`);
         console.log('Location status response:', locationResponse.data); //debug log
         setLocationSet(locationResponse.data.locationSet);
 
@@ -58,7 +58,7 @@ const PharmacistDashboard = () => {
 
   // Orders endpoint removed; skipping orders fetch
 
-      const inventoryResponse = await axios.get(`http://localhost:5000/api/inventory/pharmacy/${pharmacyResponse.data._id}?inStock=true`);
+  const inventoryResponse = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/inventory/pharmacy/${pharmacyResponse.data._id}?inStock=true`);
       const lowStockItems = inventoryResponse.data.inventory.filter(item => item.quantity <= item.minStockLevel).length;
 
       setStats({

@@ -29,7 +29,7 @@ const SearchResults = () => {
           userLocation: userLocation || null
         };
 
-        const response = await axios.post('http://localhost:5000/api/patient-search/search', payload);
+  const response = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/patient-search/search`, payload);
         if (response.data.success) {
           setResults(response.data.data || []);
         } else {

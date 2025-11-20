@@ -15,7 +15,7 @@ const RejectedPharmacy = () => {
   const fetchPharmacyStatus = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/pharmacy-onboarding/status', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/pharmacy-onboarding/status`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

@@ -25,7 +25,7 @@ const AdminLogin = () => {
 
     try {
       console.log('Sending admin login request...');
-      const response = await axios.post('http://localhost:5000/api/admin/auth/login', formData);
+  const response = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/admin/auth/login`, formData);
       console.log('Admin login response:', response.data);
       
       if (response.data.success) {

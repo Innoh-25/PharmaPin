@@ -30,7 +30,7 @@ const Login = () => {
     setLoading(true);
     
     try {
-      console.log('Sending login request to:', 'http://localhost:5000/api/auth/login');
+  console.log('Sending login request to:', `${import.meta.env.VITE_API_URL || ''}/api/auth/login`);
       
       // Use the login function from AuthContext
       const result = await login(email, password);
@@ -64,7 +64,7 @@ const Login = () => {
   // Function to handle pharmacist redirection based on pharmacy status
   const handlePharmacistRedirect = async (token) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/pharmacy-onboarding/status', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/pharmacy-onboarding/status`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

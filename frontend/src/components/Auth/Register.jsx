@@ -95,7 +95,7 @@ const Register = () => {
     
     try {
       // We'll implement this API endpoint in backend
-      const response = await axios.get(`http://localhost:5000/api/auth/check-email?email=${email}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/auth/check-email?email=${email}`);
       if (!response.data.available) {
         setEmailError('This email is already registered');
       }
@@ -142,9 +142,9 @@ const Register = () => {
   }
 
   try {
-    console.log('Sending registration request to:', 'http://localhost:5000/api/auth/register');
+      console.log('Sending registration request to:', `${import.meta.env.VITE_API_URL || ''}/api/auth/register`);
     
-    const response = await axios.post('http://localhost:5000/api/auth/register', {
+    const response = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/auth/register`, {
       firstName,
       lastName,
       username,

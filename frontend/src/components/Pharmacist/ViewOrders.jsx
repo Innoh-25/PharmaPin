@@ -16,7 +16,7 @@ const ViewOrders = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/orders/pharmacy-orders');
+  const response = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/orders/pharmacy-orders`);
       setOrders(response.data.orders || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -28,7 +28,7 @@ const ViewOrders = () => {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, {
+      await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/orders/${orderId}/status`, {
         status: newStatus
       });
       alert('Order status updated successfully!');

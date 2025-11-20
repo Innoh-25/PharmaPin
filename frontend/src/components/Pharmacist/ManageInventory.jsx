@@ -19,11 +19,11 @@ const ManageInventory = () => {
     try {
       setLoading(true);
       // First get pharmacy ID
-      const pharmacyResponse = await axios.get('http://localhost:5000/api/pharmacy-onboarding/profile');
+  const pharmacyResponse = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/pharmacy-onboarding/profile`);
       const pharmacyId = pharmacyResponse.data._id;
       
-      // Then get inventory
-      const inventoryResponse = await axios.get(`http://localhost:5000/api/inventory/pharmacy/${pharmacyId}`);
+  // Then get inventory
+  const inventoryResponse = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/inventory/pharmacy/${pharmacyId}`);
       setInventory(inventoryResponse.data.inventory || []);
     } catch (error) {
       console.error('Error fetching inventory:', error);
@@ -35,7 +35,7 @@ const ManageInventory = () => {
 
   const handleUpdateInventory = async (itemId, updates) => {
     try {
-      await axios.put(`http://localhost:5000/api/inventory/${itemId}`, updates);
+  await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/inventory/${itemId}`, updates);
       alert('Inventory updated successfully!');
       setEditingItem(null);
       fetchInventory(); // Refresh data

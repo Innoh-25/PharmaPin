@@ -26,7 +26,7 @@ const DrugClassManager = () => {
       setLoading(true);
       setError('');
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/drugs/pharmacy-drugs', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/drugs/pharmacy-drugs`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -76,7 +76,7 @@ const DrugClassManager = () => {
     if (window.confirm(`Are you sure you want to remove "${drugName}"? This will also remove it from inventory if it exists.`)) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/drugs/${drugId}`, {
+        await axios.delete(`${import.meta.env.VITE_API_URL || ''}/api/drugs/${drugId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -478,7 +478,7 @@ const AddDrugModal = ({ isOpen, onClose, onDrugAdded, selectedCategory, existing
         }
       });
 
-      await axios.post('http://localhost:5000/api/drugs', submissionData, {
+      await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/drugs`, submissionData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -712,7 +712,7 @@ const EditDrugModal = ({ isOpen, onClose, onDrugUpdated, drug, existingCategorie
         }
       });
 
-      await axios.put(`http://localhost:5000/api/drugs/${drug._id}`, submissionData, {
+      await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/drugs/${drug._id}`, submissionData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

@@ -43,7 +43,7 @@ const PharmacyOnboarding = () => {
   const checkPharmacyStatus = async () => {
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.get('http://localhost:5000/api/pharmacy-onboarding/status', {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/pharmacy-onboarding/status`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     
@@ -134,7 +134,7 @@ const PharmacyOnboarding = () => {
       });
 
       const response = await axios.post(
-        'http://localhost:5000/api/pharmacy-onboarding/upload-certificates',
+        `${import.meta.env.VITE_API_URL || ''}/api/pharmacy-onboarding/upload-certificates`,
         uploadData,
         {
           headers: { 
@@ -174,7 +174,7 @@ const PharmacyOnboarding = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/pharmacy-onboarding/complete-profile', formData, {
+      await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/pharmacy-onboarding/complete-profile`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

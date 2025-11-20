@@ -55,7 +55,7 @@ const LocationSetupModal = ({ isOpen, onClose, onLocationSet }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:5000/api/pharmacy-location/set-location', {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/pharmacy-location/set-location`, {
         latitude: location.latitude,
         longitude: location.longitude,
         address: address

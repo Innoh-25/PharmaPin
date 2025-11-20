@@ -44,7 +44,7 @@ const Profile = () => {
   const fetchPharmacyData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/pharmacy-onboarding/profile');
+  const response = await axios.get(`${import.meta.env.VITE_API_URL || ''}/api/pharmacy-onboarding/profile`);
       const pharmacyData = response.data;
       
       setPharmacy(pharmacyData);
@@ -206,7 +206,7 @@ const Profile = () => {
         operatingHours: formData.operatingHours
       };
 
-      await axios.put(`http://localhost:5000/api/pharmacies/${pharmacy._id}`, updateData);
+  await axios.put(`${import.meta.env.VITE_API_URL || ''}/api/pharmacies/${pharmacy._id}`, updateData);
       
       setMessage('Profile updated successfully!');
       setIsEditing(false);

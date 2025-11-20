@@ -82,7 +82,7 @@ const Checkout = () => {
         paymentMethod: 'mpesa' // Default for now
       };
 
-      const response = await axios.post('http://localhost:5000/api/orders', orderPayload);
+  const response = await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/orders`, orderPayload);
       
       if (response.data.success) {
         navigate('/patient/orders', { 
