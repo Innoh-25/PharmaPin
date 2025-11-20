@@ -137,7 +137,9 @@ const PharmacistDashboard = () => {
       {/* Header */}
       <header className="dashboard-header">
         <div className="header-content">
-          <div className="dashboard-title">PharmaPin Dashboard</div>
+          <div className="dashboard-title">
+            PharmaPin Dashboard
+          </div>
           <div className="user-menu">
             <span className="user-greeting">Welcome, {user?.firstName}</span>
             <button
@@ -231,72 +233,24 @@ const PharmacistDashboard = () => {
                 <p className="stat-value">KSh {stats.totalRevenue.toLocaleString()}</p>
               </div>
             </div>
-          </div>
+          </div> 
         </div>
 
         <div className="dashboard-content">
-          {/* Orders feature currently disabled */}
-          <div className="dashboard-section">
-            <div className="section-header">
-              <h3>Orders (disabled)</h3>
-            </div>
-            <div className="section-content">
-              <div className="empty-state">
-                <p>Order management has been temporarily disabled.</p>
-              </div>
-            </div>
-          </div>
 
           {/* Quick Actions */}
-          <div className="dashboard-section">
+          <div className="dashboard-section full-width">
             <div className="section-header">
               <h3>Quick Actions</h3>
             </div>
             <div className="section-content">
               <div className="quick-actions-grid">
-                <button 
-                  className="action-card"
-                  onClick={() => handleQuickAction('add-drug')}
-                >
-                  <div className="action-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                  </div>
-                  <p className="action-label">Add Drug</p>
-                </button>
-
-                <button 
-                  className="action-card"
-                  onClick={() => handleQuickAction('manage-inventory')}
-                >
-                  <div className="action-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <p className="action-label">Manage Inventory</p>
-                </button>
-
-                {/* Orders action removed while feature is disabled */}
-
-                <button 
-                  className="action-card"
-                  onClick={() => handleQuickAction('reports')}
-                >
-                  <div className="action-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                  <p className="action-label">Reports</p>
-                </button>
 
                 <button 
                   className="action-card"
                   onClick={() => handleQuickAction('manage-drugs')}
                 >
-                  <div className="action-icon">
+                  <div className="action-icon action-circle">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
@@ -306,14 +260,26 @@ const PharmacistDashboard = () => {
 
                 <button 
                   className="action-card"
-                  onClick={() => handleQuickAction('view-inventory')}
+                  onClick={() => handleQuickAction('add-drug')}
                 >
-                  <div className="action-icon">
+                  <div className="action-icon action-circle">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                   </div>
-                  <p className="action-label">View Inventory</p>
+                  <p className="action-label">Add Drug to Inventory</p>
+                </button>
+
+                <button 
+                  className="action-card"
+                  onClick={() => handleQuickAction('manage-inventory')}
+                >
+                  <div className="action-icon action-circle">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <p className="action-label">Manage Inventory</p>
                 </button>
               </div>
 
@@ -326,6 +292,16 @@ const PharmacistDashboard = () => {
         onClose={() => setShowAddDrugModal(false)}
         onDrugAdded={handleDrugAdded}
       />
+          {/* Floating Add Drug button for quick access */}
+          <button
+            className="fab"
+            title="Add drug"
+            onClick={() => setShowAddDrugModal(true)}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          </button>
     </div>
 
 

@@ -36,8 +36,10 @@ const InventoryDrugs = () => {
       setEditingItem(null);
       fetchInventory(); // Refresh data
     } catch (error) {
-      console.error('Error updating inventory:', error);
-      alert('Error updating inventory');
+      // Improve error visibility for debugging
+      console.error('Error updating inventory:', error?.response?.data || error.message || error);
+      const serverMessage = error?.response?.data?.message || error?.response?.data || error.message;
+      alert('Error updating inventory: ' + (serverMessage || 'Please try again'));
     }
   };
 
@@ -216,7 +218,14 @@ const EditInventoryModal = ({ item, onSave, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await onSave(item._id, formData);
+    // Ensure numeric and boolean types are sent to the server
+    const payload = {
+      price: formData.price !== '' ? parseFloat(formData.price) : undefined,
+      priceUnit: formData.priceUnit,
+      isAvailable: !!formData.isAvailable
+    };
+
+    await onSave(item._id, payload);
     setLoading(false);
   };
 

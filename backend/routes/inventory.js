@@ -105,7 +105,7 @@ router.put('/:id', auth, async (req, res) => {
       return res.status(403).json({ message: 'Access denied' });
     }
 
-    const allowedUpdates = ['quantity', 'price', 'discount', 'expiryDate', 'isAvailable', 'minStockLevel', 'maxStockLevel'];
+  const allowedUpdates = ['quantity', 'price', 'priceUnit', 'discount', 'expiryDate', 'isAvailable', 'minStockLevel', 'maxStockLevel'];
     const updates = Object.keys(req.body);
     const isValidOperation = updates.every(update => allowedUpdates.includes(update));
 

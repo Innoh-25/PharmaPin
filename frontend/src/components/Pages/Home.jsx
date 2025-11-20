@@ -71,10 +71,6 @@ const Home = () => {
             <h3>Real-time Availability</h3>
             <p>Check stock levels in real-time</p>
           </div>
-          <div className="feature-card">
-            <h3>Easy Ordering</h3>
-            <p>Pickup or delivery options available</p>
-          </div>
         </div>
       </div>
     </div>
