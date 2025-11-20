@@ -23,7 +23,13 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+// Configure CORS to accept requests from the Vite dev server and from the configured frontend origin.
+const frontendOrigin = process.env.FRONTEND_ORIGIN;
+const devOrigin = 'http://localhost:5173';
+const allowedOrigins = [];
+if (frontendOrigin) allowedOrigins.push(frontendOrigin);
+allowedOrigins.push(devOrigin);
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
