@@ -30,4 +30,8 @@ axios.interceptors.request.use((config) => {
 }, (error) => Promise.reject(error));
 
 // Optionally export axios for convenience
+// Debug: log the effective axios baseURL at startup to help diagnose requests
+// eslint-disable-next-line no-console
+console.debug('axiosSetup: axios.defaults.baseURL =', axios.defaults.baseURL);
+
 export default axios;

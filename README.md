@@ -2,6 +2,8 @@
 
 PharmaPin is a pharmacy discovery and management platform that connects patients with nearby pharmacies, lets pharmacists manage inventory, and provides authentication and administrative tools. This repository contains a Node/Express backend (MongoDB + Mongoose) and a React frontend (Vite).
 
+## Deployment link: https://pharma-pin.vercel.app/
+
 This README covers how the project is structured, how to run it locally, environment variables, API overview, and development tips
 ## Table of contents
 - Project status

@@ -6,6 +6,16 @@ const AuthContext = createContext();
 // Base URL for API calls (uses Vite env var when building for production)
 const API_BASE_URL = `${import.meta.env.VITE_API_URL || ''}/api`;
 
+// Debug: expose and log the resolved API base so we can quickly verify the
+// runtime value in the browser console when diagnosing network issues.
+if (typeof window !== 'undefined') {
+  // Expose for manual inspection in console
+  window.__PHARMAPIN_API_BASE__ = API_BASE_URL;
+  // Log at debug level to avoid polluting regular logs
+  // eslint-disable-next-line no-console
+  console.debug('AuthContext: API_BASE_URL =', API_BASE_URL);
+}
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
