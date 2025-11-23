@@ -7,6 +7,13 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <script>
+      // Only set if not already provided (so hosts that inject this global won't be overwritten)
+      if (!window.__PHARMAPIN_RUNTIME_API__) {
+        window.__PHARMAPIN_RUNTIME_API__ = 'https://pharmapin.onrender.com';
+      }
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
