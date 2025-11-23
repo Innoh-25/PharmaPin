@@ -26,45 +26,42 @@ const Login = () => {
   };
 
   const onSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
+  
+  try {
+    console.log('Sending login request to:', `${axios.defaults.baseURL}/auth/login`);
     
-    try {
-  console.log('Sending login request to:', `${import.meta.env.VITE_API_URL || ''}/api/auth/login`);
-      
-      // Use the login function from AuthContext
-      const result = await login(email, password);
-      const user = result.user;
-      
-      console.log('LOGIN SUCCESS:', user);
-      
-      // Handle redirection based on user role
-      if (user.role === 'pharmacist') {
-        // For pharmacists, check their pharmacy status and redirect accordingly
-        await handlePharmacistRedirect(user.token);
-      } else if (user.role === 'patient') {
-        navigate('/patient/dashboard');
-      } else {
-        navigate('/');
-      }
-      
-    } catch (error) {
-      console.log('LOGIN ERROR DETAILS:');
-      console.log('- Error message:', error.message);
-      console.log('- Response status:', error.response?.status);
-      console.log('- Response data:', error.response?.data);
-      
-      // Additional diagnostic info for debugging network/CORS issues
-      // (error.request exists when the request was sent but no response received)
-      console.debug('LOGIN DEBUG: error.request =', error.request);
-      console.debug('LOGIN DEBUG: error.response =', error.response);
-
-      const errorMessage = error.response?.data?.message || error.message || 'Login failed';
-      alert(`Login failed: ${errorMessage}`);
-    } finally {
-      setLoading(false);
+    // Use the login function from AuthContext
+    const result = await login(email, password);
+    const user = result.user;
+    
+    console.log('LOGIN SUCCESS:', user);
+    
+    // Handle redirection based on user role
+    if (user.role === 'pharmacist') {
+      // For pharmacists, check their pharmacy status and redirect accordingly
+      await handlePharmacistRedirect(user.token);
+    } else if (user.role === 'patient') {
+      navigate('/patient/dashboard');
+    } else {
+      navigate('/');
     }
-  };
+    
+  } catch (error) {
+    console.log('LOGIN ERROR DETAILS:');
+    console.log('- Error message:', error.message);
+    console.log('- Response status:', error.response?.status);
+    console.log('- Response data:', error.response?.data);
+    console.log('- Full error:', error);
+    
+    const errorMessage = error.response?.data?.message || error.message || 'Login failed';
+    alert(`Login failed: ${errorMessage}`);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // Function to handle pharmacist redirection based on pharmacy status
   const handlePharmacistRedirect = async (token) => {
