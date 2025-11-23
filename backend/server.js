@@ -23,13 +23,33 @@ dotenv.config();
 const app = express();
 
 // Middleware
-// Configure CORS to accept requests from the Vite dev server and from the configured frontend origin.
-const frontendOrigin = process.env.FRONTEND_ORIGIN;
-const devOrigin = 'http://localhost:5173';
-const allowedOrigins = [];
-if (frontendOrigin) allowedOrigins.push(frontendOrigin);
-allowedOrigins.push(devOrigin);
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+const allowedOrigins = [
+  'http://localhost:5173', // Vite dev server
+  'https://pharma-pin.vercel.app' // Your Vercel frontend - ADD THIS LINE
+];
+
+// FRONTEND_ORIGIN from environment
+if (process.env.FRONTEND_ORIGIN) {
+  allowedOrigins.push(process.env.FRONTEND_ORIGIN);
+}
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('Blocked by CORS:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
