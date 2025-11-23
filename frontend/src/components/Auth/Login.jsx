@@ -54,7 +54,12 @@ const Login = () => {
       console.log('- Response status:', error.response?.status);
       console.log('- Response data:', error.response?.data);
       
-      const errorMessage = error.response?.data?.message || 'Login failed';
+      // Additional diagnostic info for debugging network/CORS issues
+      // (error.request exists when the request was sent but no response received)
+      console.debug('LOGIN DEBUG: error.request =', error.request);
+      console.debug('LOGIN DEBUG: error.response =', error.response);
+
+      const errorMessage = error.response?.data?.message || error.message || 'Login failed';
       alert(`Login failed: ${errorMessage}`);
     } finally {
       setLoading(false);

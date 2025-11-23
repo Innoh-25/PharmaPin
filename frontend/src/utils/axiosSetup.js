@@ -3,11 +3,16 @@
 // so existing absolute URLs in code continue to work in production without editing every file.
 import axios from 'axios';
 
+// Resolve API base in this order:
+// 1. Vite build-time env var (import.meta.env.VITE_API_URL) - set at build time for production
+// 2. Runtime override window.__PHARMAPIN_RUNTIME_API__ (useful for injecting at runtime without rebuild)
+// 3. Empty string (falls back to relative /api/... - useful for dev with proxy)
 const PROD_API = import.meta.env.VITE_API_URL || '';
+const RUNTIME_API = (typeof window !== 'undefined' && window.__PHARMAPIN_RUNTIME_API__) ? window.__PHARMAPIN_RUNTIME_API__ : '';
+const RESOLVED_API = PROD_API || RUNTIME_API || '';
 
-// Use the Vite-provided API url when available, otherwise default to empty string
-// so dev proxy or absolute URLs still function.
-axios.defaults.baseURL = PROD_API || '';
+// Use the resolved API base
+axios.defaults.baseURL = RESOLVED_API;
 
 // Intercept requests and rewrite any absolute localhost URLs to be relative so they use baseURL.
 axios.interceptors.request.use((config) => {
@@ -30,8 +35,8 @@ axios.interceptors.request.use((config) => {
 }, (error) => Promise.reject(error));
 
 // Optionally export axios for convenience
-// Debug: log the effective axios baseURL at startup to help diagnose requests
+// Debug: log the effective axios baseURL and runtime override at startup to help diagnose requests
 // eslint-disable-next-line no-console
-console.debug('axiosSetup: axios.defaults.baseURL =', axios.defaults.baseURL);
+console.debug('axiosSetup: axios.defaults.baseURL =', axios.defaults.baseURL, ' (VITE_API_URL=', import.meta.env.VITE_API_URL, ' RUNTIME=', RUNTIME_API, ')');
 
 export default axios;
