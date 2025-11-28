@@ -2,7 +2,15 @@
 
 PharmaPin is a pharmacy discovery and management platform that connects patients with nearby pharmacies, lets pharmacists manage inventory, and provides authentication and administrative tools. This repository contains a Node/Express backend (MongoDB + Mongoose) and a React frontend (Vite).
 
-## Deployment link: https://pharma-pin.vercel.app/
+## Deployment link for pharmacist and patients: https://pharma-pin.vercel.app/
+
+## Admin access link: https://pharma-pin.vercel.app/secure-admin-access
+
+## Admin Credentials:
+Email: admin@gmail.com
+Password: AdminUser1.
+Security key: PharmaPin2025
+
 
 This README covers how the project is structured, how to run it locally, environment variables, API overview, and development tips
 ## Table of contents
@@ -15,12 +23,6 @@ This README covers how the project is structured, how to run it locally, environ
 - Frontend — detailed setup
 - Environment variables (.env)
 - API overview (key endpoints)
-- Ordering feature note
-- Testing, linting & scripts
-- Deployment hints
-- Contributing
-- Troubleshooting
-- License
 
 ## Project status
 - Core functionality implemented: authentication, user management, pharmacy onboarding, drug searching, geolocation, inventory management, and administrative routes.
@@ -149,31 +151,6 @@ The backend registers several routers in `server.js`. Key groups include:
 - Admin: `/api/admin` and `/api/admin/auth` (admin routes)
 - Utilities: `/api/patient-search`, `/api/geocode`, `/api/pharmacy-onboarding`, `/api/pharmacy-location`
 
-Note: the ordering router and the Order model were removed/disabled in this branch. Any frontend or code that still attempts to call `/api/orders` will fail until updated.
 
-## Ordering feature note
-Per project direction, the ordering feature has been intentionally removed/disabled for now. What changed:
 
-- Backend: `backend/models/Order.js` and `backend/routes/orders.js` were removed, and `server.js` no longer mounts an orders router.
-- Frontend: order-related pages/components and routes were removed or converted to placeholders in several places.
-
-If you plan to reintroduce orders later, keep in mind:
-
-1. Recreate a robust `Order` Mongoose model (items, patient, pharmacy, totals, status, payment info, timestamps).
-2. Reintroduce secure endpoints under `/api/orders` with authentication and validation.
-3. Reconnect frontend flows: checkout, order history, order details, and notification handling.
-
-## Testing, linting & scripts
-
-- Backend scripts (in `backend/package.json`):
-	- `npm run dev` — development (nodemon server.js)
-	- `npm start` — run server with Node
-
-- Frontend scripts (in `frontend/package.json`):
-	- `npm run dev` — start Vite dev server
-	- `npm run build` — build for production
-	- `npm run preview` — preview production build
-	- `npm run lint` — run ESLint
-
-There are no automated tests configured at the moment. Adding unit and integration tests is recommended before shipping.
 
