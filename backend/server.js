@@ -117,6 +117,7 @@ const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/pharmapin');
     console.log('MongoDB connected successfully');
+    console.log('Database name:', mongoose.connection.db?.databaseName);
   } catch (error) {
     console.error('MongoDB connection error:', error);
     process.exit(1);

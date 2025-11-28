@@ -29,34 +29,52 @@ const upload = multer({
 // Function to upload buffer to GridFS
 const uploadToGridFS = (buffer, originalname, userId) => {
   return new Promise((resolve, reject) => {
-    const db = mongoose.connection.db;
-    const bucket = new mongoose.mongo.GridFSBucket(db, { bucketName: 'certificates' });
-    
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const filename = `certificate-${uniqueSuffix}${path.extname(originalname)}`;
-    
-    const uploadStream = bucket.openUploadStream(filename, {
-      metadata: {
-        originalName: originalname,
-        uploadedBy: userId,
-        uploadDate: new Date()
+    try {
+      // Check if MongoDB connection is ready
+      if (mongoose.connection.readyState !== 1) {
+        return reject(new Error('MongoDB not connected'));
       }
-    });
-    
-    uploadStream.end(buffer);
-    
-    uploadStream.on('finish', (file) => {
-      resolve({
-        filename: filename,
-        fileId: file._id,
-        originalName: originalname,
-        size: file.length
+
+      const db = mongoose.connection.db;
+      if (!db) {
+        return reject(new Error('Database not available'));
+      }
+
+      const bucket = new mongoose.mongo.GridFSBucket(db, { bucketName: 'certificates' });
+      
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const filename = `certificate-${uniqueSuffix}${path.extname(originalname)}`;
+      
+      const uploadStream = bucket.openUploadStream(filename, {
+        metadata: {
+          originalName: originalname,
+          uploadedBy: userId,
+          uploadDate: new Date()
+        }
       });
-    });
-    
-    uploadStream.on('error', (error) => {
+      
+      uploadStream.write(buffer);
+      uploadStream.end();
+      
+      uploadStream.on('finish', (file) => {
+        console.log('GridFS upload finished:', file._id);
+        resolve({
+          filename: filename,
+          fileId: file._id,
+          originalName: originalname,
+          size: file.length
+        });
+      });
+      
+      uploadStream.on('error', (error) => {
+        console.error('GridFS upload stream error:', error);
+        reject(error);
+      });
+      
+    } catch (error) {
+      console.error('Error in uploadToGridFS:', error);
       reject(error);
-    });
+    }
   });
 };
 

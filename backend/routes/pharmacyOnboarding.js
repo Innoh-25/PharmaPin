@@ -35,6 +35,12 @@ router.get('/status', auth, async (req, res) => {
 // NEW ROUTE: Handle file uploads with GridFS
 router.post('/upload-certificates', auth, upload.array('certificates', 5), async (req, res) => {
   try {
+    console.log('Upload request received:', {
+      user: req.user.id,
+      filesCount: req.files ? req.files.length : 0,
+      files: req.files ? req.files.map(f => ({ name: f.originalname, size: f.size })) : 'none'
+    });
+
     if (req.user.role !== 'pharmacist') {
       return res.status(403).json({ message: 'Access denied' });
     }
@@ -46,19 +52,29 @@ router.post('/upload-certificates', auth, upload.array('certificates', 5), async
     // Upload each file to GridFS
     const uploadedFiles = [];
     for (const file of req.files) {
-      const gridFSFile = await uploadToGridFS(
-        file.buffer, 
-        file.originalname, 
-        req.user.id
-      );
-      uploadedFiles.push({
-        name: file.originalname,
-        filename: gridFSFile.filename,
-        fileId: gridFSFile.fileId,
-        fileUrl: `/api/uploads/certificates/${gridFSFile.filename}`,
-        uploadedAt: new Date(),
-        size: gridFSFile.size
-      });
+      console.log('Processing file:', file.originalname, 'size:', file.size);
+      
+      try {
+        const gridFSFile = await uploadToGridFS(
+          file.buffer, 
+          file.originalname, 
+          req.user.id
+        );
+        
+        uploadedFiles.push({
+          name: file.originalname,
+          filename: gridFSFile.filename,
+          fileId: gridFSFile.fileId,
+          fileUrl: `/api/uploads/certificates/${gridFSFile.filename}`,
+          uploadedAt: new Date(),
+          size: gridFSFile.size
+        });
+        
+        console.log('File uploaded successfully:', gridFSFile.filename);
+      } catch (fileError) {
+        console.error('Error uploading individual file:', fileError);
+        throw fileError; // Re-throw to catch in the main try-catch
+      }
     }
 
     res.json({
@@ -66,12 +82,14 @@ router.post('/upload-certificates', auth, upload.array('certificates', 5), async
       message: 'Files uploaded successfully',
       certificates: uploadedFiles
     });
+    
   } catch (error) {
-    console.error('File upload error:', error);
+    console.error('COMPLETE FILE UPLOAD ERROR:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ 
       success: false, 
       message: 'File upload failed', 
-      error: error.message 
+      error: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message 
     });
   }
 });
