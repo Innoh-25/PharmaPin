@@ -1,7 +1,7 @@
 const express = require('express');
 const Pharmacy = require('../models/Pharmacy');
 const auth = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { upload, getFile, deleteFile } = require('../utils/gridfsStorage');
 
 const router = express.Router();
 
@@ -32,7 +32,7 @@ router.get('/status', auth, async (req, res) => {
   }
 });
 
-// NEW ROUTE: Handle file uploads
+// NEW ROUTE: Handle file uploads with GridFS
 router.post('/upload-certificates', auth, upload.array('certificates', 5), async (req, res) => {
   try {
     if (req.user.role !== 'pharmacist') {
@@ -43,10 +43,14 @@ router.post('/upload-certificates', auth, upload.array('certificates', 5), async
       return res.status(400).json({ message: 'No files uploaded' });
     }
 
+    // Map uploaded files to include GridFS information
     const fileUrls = req.files.map(file => ({
       name: file.originalname,
-      fileUrl: `/uploads/certificates/${file.filename}`,
-      uploadedAt: new Date()
+      filename: file.filename, // GridFS filename
+      fileId: file.id, // GridFS file ID
+      fileUrl: `/api/uploads/certificates/${file.filename}`, // Updated URL to use GridFS route
+      uploadedAt: new Date(),
+      size: file.size
     }));
 
     res.json({
@@ -55,6 +59,7 @@ router.post('/upload-certificates', auth, upload.array('certificates', 5), async
       certificates: fileUrls
     });
   } catch (error) {
+    console.error('File upload error:', error);
     res.status(500).json({ 
       success: false, 
       message: 'File upload failed', 
@@ -143,7 +148,6 @@ router.post('/complete-profile', auth, async (req, res) => {
     res.status(400).json({ message: 'Profile completion failed', error: error.message });
   }
 });
-
 
 // Get pharmacy profile for editing
 router.get('/profile', auth, async (req, res) => {

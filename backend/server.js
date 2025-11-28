@@ -17,6 +17,7 @@ const patientRoutes = require('./routes/patients');
 const patientSearchRoutes = require('./routes/patientSearch');
 const pharmacyLocationRoutes = require('./routes/pharmacyLocation');
 const geocodeRoutes = require('./routes/geocode');
+const uploadRoutes = require('./routes/uploads');
 
 dotenv.config();
 
@@ -52,7 +53,6 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -68,6 +68,7 @@ app.use('/api/patients', patientRoutes);
 // Public patient search (drug availability near a location)
 app.use('/api/patient-search', patientSearchRoutes);
 app.use('/api/geocode', geocodeRoutes);
+app.use('/api/uploads', uploadRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
