@@ -43,20 +43,28 @@ router.post('/upload-certificates', auth, upload.array('certificates', 5), async
       return res.status(400).json({ message: 'No files uploaded' });
     }
 
-    // Map uploaded files to include GridFS information
-    const fileUrls = req.files.map(file => ({
-      name: file.originalname,
-      filename: file.filename, // GridFS filename
-      fileId: file.id, // GridFS file ID
-      fileUrl: `/api/uploads/certificates/${file.filename}`, // Updated URL to use GridFS route
-      uploadedAt: new Date(),
-      size: file.size
-    }));
+    // Upload each file to GridFS
+    const uploadedFiles = [];
+    for (const file of req.files) {
+      const gridFSFile = await uploadToGridFS(
+        file.buffer, 
+        file.originalname, 
+        req.user.id
+      );
+      uploadedFiles.push({
+        name: file.originalname,
+        filename: gridFSFile.filename,
+        fileId: gridFSFile.fileId,
+        fileUrl: `/api/uploads/certificates/${gridFSFile.filename}`,
+        uploadedAt: new Date(),
+        size: gridFSFile.size
+      });
+    }
 
     res.json({
       success: true,
       message: 'Files uploaded successfully',
-      certificates: fileUrls
+      certificates: uploadedFiles
     });
   } catch (error) {
     console.error('File upload error:', error);
